@@ -1,0 +1,435 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 0, 0, 0;
+  --background-end-rgb: 0, 0, 0;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-start-rgb));
+  overflow: hidden;
+}
+
+* {
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+/* Perspective utility */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* Gradient utilities */
+.bg-gradient-radial {
+  background-image: radial-gradient(var(--tw-gradient-stops));
+}
+
+/* Glass card animations */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite;
+}
+
+/* Card stack transitions */
+.card-transition {
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Parallax transition effects */
+.parallax-section {
+  will-change: transform;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+/* Replace the intense glitch animations with more subtle ones */
+
+/* Subtle scan lines */
+.bg-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* Subtle glitch animations */
+@keyframes subtle-glitch-1 {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: translateX(-2px);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateX(1px);
+    opacity: 0.2;
+  }
+  75% {
+    transform: translateX(-1px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes subtle-glitch-2 {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.2;
+  }
+  33% {
+    transform: translateX(2px);
+    opacity: 0.3;
+  }
+  66% {
+    transform: translateX(-1px);
+    opacity: 0.2;
+  }
+}
+
+.animate-subtle-glitch-1 {
+  animation: subtle-glitch-1 0.15s linear;
+}
+
+.animate-subtle-glitch-2 {
+  animation: subtle-glitch-2 0.12s linear;
+}
+
+/* Glitch animations */
+@keyframes glitch-h-1 {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.7;
+  }
+  20% {
+    transform: translateX(-5%);
+    opacity: 0.9;
+  }
+  40% {
+    transform: translateX(5%);
+    opacity: 0.5;
+  }
+  60% {
+    transform: translateX(-3%);
+    opacity: 0.8;
+  }
+  80% {
+    transform: translateX(3%);
+    opacity: 0.6;
+  }
+}
+
+@keyframes glitch-h-2 {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateX(5%);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(-5%);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateX(3%);
+    opacity: 0.7;
+  }
+}
+
+@keyframes glitch-h-3 {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateX(-3%);
+    opacity: 0.7;
+  }
+  60% {
+    transform: translateX(5%);
+    opacity: 0.6;
+  }
+  90% {
+    transform: translateX(-2%);
+    opacity: 0.8;
+  }
+}
+
+@keyframes glitch-v-1 {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.3;
+  }
+  20% {
+    transform: translateY(-2%);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(2%);
+    opacity: 0.2;
+  }
+  60% {
+    transform: translateY(-1%);
+    opacity: 0.3;
+  }
+  80% {
+    transform: translateY(1%);
+    opacity: 0.2;
+  }
+}
+
+@keyframes glitch-v-2 {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.2;
+  }
+  25% {
+    transform: translateY(2%);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-2%);
+    opacity: 0.2;
+  }
+  75% {
+    transform: translateY(1%);
+    opacity: 0.3;
+  }
+}
+
+@keyframes glitch-v-3 {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.3;
+  }
+  30% {
+    transform: translateY(-1%);
+    opacity: 0.2;
+  }
+  60% {
+    transform: translateY(2%);
+    opacity: 0.3;
+  }
+  90% {
+    transform: translateY(-1%);
+    opacity: 0.2;
+  }
+}
+
+@keyframes glitch-color-1 {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: translate(0, 0);
+  }
+  25% {
+    opacity: 0.2;
+    transform: translate(2px, 1px);
+  }
+  50% {
+    opacity: 0.1;
+    transform: translate(-2px, -1px);
+  }
+  75% {
+    opacity: 0.2;
+    transform: translate(1px, -1px);
+  }
+}
+
+@keyframes glitch-color-2 {
+  0%,
+  100% {
+    opacity: 0.1;
+    transform: translate(0, 0);
+  }
+  25% {
+    opacity: 0.2;
+    transform: translate(-2px, -1px);
+  }
+  50% {
+    opacity: 0.1;
+    transform: translate(2px, 1px);
+  }
+  75% {
+    opacity: 0.2;
+    transform: translate(-1px, 1px);
+  }
+}
+
+.animate-glitch-h-1 {
+  animation: glitch-h-1 0.2s linear infinite;
+}
+
+.animate-glitch-h-2 {
+  animation: glitch-h-2 0.15s linear infinite;
+}
+
+.animate-glitch-h-3 {
+  animation: glitch-h-3 0.25s linear infinite;
+}
+
+.animate-glitch-v-1 {
+  animation: glitch-v-1 0.3s linear infinite;
+}
+
+.animate-glitch-v-2 {
+  animation: glitch-v-2 0.25s linear infinite;
+}
+
+.animate-glitch-v-3 {
+  animation: glitch-v-3 0.35s linear infinite;
+}
+
+.animate-glitch-color-1 {
+  animation: glitch-color-1 0.2s linear infinite;
+}
+
+.animate-glitch-color-2 {
+  animation: glitch-color-2 0.25s linear infinite;
+}
+
+/* Keep the noise background but make it more subtle */
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Mobile button fixes */
+@media (max-width: 640px) {
+  .font-syncopate {
+    letter-spacing: 0.05em;
+  }
+
+  /* Ensure backdrop-filter works on mobile */
+  .backdrop-blur-md {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Fallback for devices that don't support backdrop-filter */
+  @supports not (backdrop-filter: blur(12px)) {
+    .backdrop-blur-md {
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+/* Fix for button text visibility */
+.font-syncopate {
+  text-shadow: 0 0 1px rgba(255, 255, 255, 255, 255, 0.15);
+}
+\
+}
+}
+
+/* Fix for button text visibility */
+.font-syncopate {
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Audio player styles */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* Audio visualizer animation */
+@keyframes equalizer-bar {
+  0%,
+  100% {
+    height: 3px;
+  }
+  50% {
+    height: 20px;
+  }
+}
+
+.equalizer-bar {
+  animation: equalizer-bar 0.5s ease-in-out infinite;
+  animation-delay: calc(var(--delay) * 0.1s);
+}
+
+/* Pricing page specific styles */
+.premium-button {
+  @apply px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all;
+}
+
+.glass-button {
+  @apply px-6 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white font-medium hover:bg-white/20 transition-all;
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600;
+}
+
