@@ -10,12 +10,34 @@ import CardStack from "@/components/glass-card-stack/card-stack"
 import SimpleAudioFallback from "@/components/SimpleAudioFallback"
 
 // Dynamically import Globe to avoid SSR issues
-const Globe = dynamic(() => import("@/components/Globe"), { ssr: false })
+const Globe = dynamic(() => import("@/components/Globe"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-screen">
+      <div className="animate-pulse text-white">Loading...</div>
+    </div>
+  )
+})
+
+// Dynamically import ScrollManager to avoid SSR issues
+const DynamicScrollManager = dynamic(() => Promise.resolve(ScrollManager), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-screen">
+      <div className="animate-pulse text-white">Loading...</div>
+    </div>
+  )
+})
 
 export default function Home() {
   const [showImageDisplay, setShowImageDisplay] = useState(false)
   const [showCardStack, setShowCardStack] = useState(false)
   const [animationsCompleted, setAnimationsCompleted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   // Reset animations completed state when image display is shown
   useEffect(() => {
@@ -37,10 +59,18 @@ export default function Home() {
     setShowCardStack(true)
   }
 
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-pulse text-white">Loading...</div>
+      </div>
+    )
+  }
+
   return (
     <main className="relative min-h-screen bg-black overflow-hidden">
       <SimpleAudioFallback />
-      <ScrollManager>
+      <DynamicScrollManager>
         <section className="relative min-h-screen bg-black">
           <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading Globe...</div>}>
             <Globe />
@@ -107,7 +137,7 @@ export default function Home() {
         <section className="min-h-screen">
           <PricingSection />
         </section>
-      </ScrollManager>
+      </DynamicScrollManager>
     </main>
   )
 }

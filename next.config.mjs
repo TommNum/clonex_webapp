@@ -27,6 +27,23 @@ const nextConfig = {
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
   },
+  // Add these configurations for better SSR handling
+  output: 'standalone',
+  reactStrictMode: true,
+  swcMinify: true,
+  // Disable static optimization for pages that use browser APIs
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  // Add webpack configuration to handle window/document
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+      }
+    }
+    return config
+  },
 }
 
 if (userConfig) {
