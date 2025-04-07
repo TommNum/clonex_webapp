@@ -30,7 +30,6 @@ const nextConfig = {
   // Add these configurations for better SSR handling
   output: 'standalone',
   reactStrictMode: true,
-  swcMinify: true,
   // Disable static optimization for pages that use browser APIs
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   // Add webpack configuration to handle window/document

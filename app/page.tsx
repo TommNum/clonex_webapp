@@ -3,13 +3,11 @@
 import dynamic from "next/dynamic"
 import { Suspense, useState, useEffect } from "react"
 import PricingSection from "@/components/PricingSection"
-import ScrollManager from "@/components/ScrollManager"
 import GlassButton from "@/components/GlassButton"
 import ImageDisplay from "@/components/ImageDisplay"
 import CardStack from "@/components/glass-card-stack/card-stack"
-import SimpleAudioFallback from "@/components/SimpleAudioFallback"
 
-// Dynamically import Globe to avoid SSR issues
+// Dynamically import all browser-dependent components
 const Globe = dynamic(() => import("@/components/Globe"), {
   ssr: false,
   loading: () => (
@@ -19,14 +17,17 @@ const Globe = dynamic(() => import("@/components/Globe"), {
   )
 })
 
-// Dynamically import ScrollManager to avoid SSR issues
-const DynamicScrollManager = dynamic(() => Promise.resolve(ScrollManager), {
+const ScrollManager = dynamic(() => import("@/components/ScrollManager"), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-screen">
       <div className="animate-pulse text-white">Loading...</div>
     </div>
   )
+})
+
+const SimpleAudioFallback = dynamic(() => import("@/components/SimpleAudioFallback"), {
+  ssr: false
 })
 
 export default function Home() {
@@ -70,7 +71,7 @@ export default function Home() {
   return (
     <main className="relative min-h-screen bg-black overflow-hidden">
       <SimpleAudioFallback />
-      <DynamicScrollManager>
+      <ScrollManager>
         <section className="relative min-h-screen bg-black">
           <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading Globe...</div>}>
             <Globe />
@@ -137,7 +138,7 @@ export default function Home() {
         <section className="min-h-screen">
           <PricingSection />
         </section>
-      </DynamicScrollManager>
+      </ScrollManager>
     </main>
   )
 }
