@@ -11,7 +11,7 @@ export default function Globe() {
   const [showHint, setShowHint] = useState(true)
 
   useEffect(() => {
-    if (!mountRef.current) return
+    if (!mountRef.current || typeof window === 'undefined') return
 
     // Create scene, camera, and renderer
     const scene = new THREE.Scene()

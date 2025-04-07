@@ -4,6 +4,9 @@ import { useEffect } from "react"
 
 export default function SimpleAudioFallback() {
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined' || typeof document === 'undefined') return
+
     // This component is a last resort fallback
     // It will try to play the audio using the most basic approach
     const tryPlayAudio = () => {
