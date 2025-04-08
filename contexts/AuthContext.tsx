@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Check for token in cookies on mount
         const token = Cookies.get("twitter_access_token")
-        console.log("Auth check - token found:", !!token)
+        console.log("Auth check - token found:", !!token, "token:", token)
         if (token) {
             setIsAuthenticated(true)
         }
