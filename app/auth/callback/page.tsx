@@ -20,12 +20,8 @@ function AuthCallbackContent() {
                     return
                 }
 
-                // Get the code verifier from cookies
-                const codeVerifier = document.cookie
-                    .split('; ')
-                    .find(row => row.startsWith('code_verifier='))
-                    ?.split('=')[1]
-
+                // Get the code verifier from localStorage
+                const codeVerifier = localStorage.getItem('code_verifier')
                 if (!codeVerifier) {
                     console.error("No code verifier found")
                     router.push("/?error=no_verifier")
@@ -62,6 +58,9 @@ function AuthCallbackContent() {
                 if (data.access_token) {
                     document.cookie = `twitter_access_token=${data.access_token}; path=/; secure`
                 }
+
+                // Clean up the code verifier
+                localStorage.removeItem('code_verifier')
 
                 // Redirect to dashboard
                 router.push("/dashboard")
