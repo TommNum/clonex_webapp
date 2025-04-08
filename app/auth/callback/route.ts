@@ -6,11 +6,9 @@ export async function POST(request: Request) {
         const code = formData.get("code")
         const codeVerifier = formData.get("code_verifier")
 
-        const origin = new URL(request.url).origin
-
         if (!code || !codeVerifier) {
             console.error("Missing params:", { code: !!code, codeVerifier: !!codeVerifier })
-            return NextResponse.redirect(`${origin}/?error=missing_params`)
+            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/?error=missing_params`)
         }
 
         console.log("Attempting token exchange with:", {
@@ -40,11 +38,11 @@ export async function POST(request: Request) {
                 statusText: tokenResponse.statusText,
                 error: errorText
             })
-            return NextResponse.redirect(`${origin}/?error=token_exchange_failed`)
+            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/?error=token_exchange_failed`)
         }
 
         const { access_token } = await tokenResponse.json()
-        const response = NextResponse.redirect(`${origin}/dashboard`)
+        const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`)
 
         response.cookies.set({
             name: "twitter_access_token",
@@ -58,7 +56,7 @@ export async function POST(request: Request) {
         return response
     } catch (error) {
         console.error("Server error during token exchange:", error)
-        return NextResponse.redirect(`${origin}/?error=server_error`)
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/?error=server_error`)
     }
 }
 
@@ -66,10 +64,9 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get("code")
-    const origin = new URL(request.url).origin
 
     if (!code) {
-        return NextResponse.redirect(`${origin}/?error=no_code`)
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/?error=no_code`)
     }
 
     // Return a simple HTML page that submits the form with the code
@@ -80,7 +77,7 @@ export async function GET(request: Request) {
                 <script>
                     const codeVerifier = localStorage.getItem('code_verifier');
                     if (!codeVerifier) {
-                        window.location.href = '/?error=no_verifier';
+                        window.location.href = '${process.env.NEXT_PUBLIC_BASE_URL}/?error=no_verifier';
                     } else {
                         const form = document.createElement('form');
                         form.method = 'POST';
