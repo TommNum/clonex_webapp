@@ -6,8 +6,10 @@ export async function POST(request: Request) {
         const code = formData.get("code")
         const codeVerifier = formData.get("code_verifier")
 
+        const origin = new URL(request.url).origin
+
         if (!code || !codeVerifier) {
-            return NextResponse.redirect(new URL("/?error=missing_params", request.url))
+            return NextResponse.redirect(`${origin}/?error=missing_params`)
         }
 
         const tokenResponse = await fetch("https://api.twitter.com/2/oauth2/token", {
@@ -25,11 +27,11 @@ export async function POST(request: Request) {
         })
 
         if (!tokenResponse.ok) {
-            return NextResponse.redirect(new URL("/?error=token_exchange_failed", request.url))
+            return NextResponse.redirect(`${origin}/?error=token_exchange_failed`)
         }
 
         const { access_token } = await tokenResponse.json()
-        const response = NextResponse.redirect(new URL("/dashboard", request.url))
+        const response = NextResponse.redirect(`${origin}/dashboard`)
 
         response.cookies.set({
             name: "twitter_access_token",
@@ -42,7 +44,7 @@ export async function POST(request: Request) {
 
         return response
     } catch (error) {
-        return NextResponse.redirect(new URL("/?error=server_error", request.url))
+        return NextResponse.redirect(`${origin}/?error=server_error`)
     }
 }
 
@@ -50,9 +52,10 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get("code")
+    const origin = new URL(request.url).origin
 
     if (!code) {
-        return NextResponse.redirect(new URL("/?error=no_code", request.url))
+        return NextResponse.redirect(`${origin}/?error=no_code`)
     }
 
     // Return a simple HTML page that submits the form with the code
