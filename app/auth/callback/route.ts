@@ -9,8 +9,15 @@ export async function POST(request: Request) {
         const origin = new URL(request.url).origin
 
         if (!code || !codeVerifier) {
+            console.error("Missing params:", { code: !!code, codeVerifier: !!codeVerifier })
             return NextResponse.redirect(`${origin}/?error=missing_params`)
         }
+
+        console.log("Attempting token exchange with:", {
+            code: code.toString().substring(0, 10) + "...",
+            codeVerifier: codeVerifier.toString().substring(0, 10) + "...",
+            redirectUri: process.env.TWITTER_REDIRECT_URI
+        })
 
         const tokenResponse = await fetch("https://api.twitter.com/2/oauth2/token", {
             method: "POST",
@@ -27,6 +34,12 @@ export async function POST(request: Request) {
         })
 
         if (!tokenResponse.ok) {
+            const errorText = await tokenResponse.text()
+            console.error("Token exchange failed:", {
+                status: tokenResponse.status,
+                statusText: tokenResponse.statusText,
+                error: errorText
+            })
             return NextResponse.redirect(`${origin}/?error=token_exchange_failed`)
         }
 
@@ -44,6 +57,7 @@ export async function POST(request: Request) {
 
         return response
     } catch (error) {
+        console.error("Server error during token exchange:", error)
         return NextResponse.redirect(`${origin}/?error=server_error`)
     }
 }
