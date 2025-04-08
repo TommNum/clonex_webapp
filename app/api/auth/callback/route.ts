@@ -6,7 +6,7 @@ export async function GET(request: Request) {
     const state = searchParams.get("state")
 
     if (!code) {
-        return NextResponse.redirect("/?error=no_code")
+        return NextResponse.redirect(new URL("/?error=no_code", request.url))
     }
 
     // Check for required environment variables
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
             hasClientId: !!process.env.TWITTER_CLIENT_ID,
             hasRedirectUri: !!process.env.TWITTER_REDIRECT_URI
         })
-        return NextResponse.redirect("/?error=config_error")
+        return NextResponse.redirect(new URL("/?error=config_error", request.url))
     }
 
     try {
@@ -24,6 +24,9 @@ export async function GET(request: Request) {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
+                "Authorization": `Basic ${Buffer.from(
+                    `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
+                ).toString("base64")}`,
             },
             body: new URLSearchParams({
                 code,
@@ -47,7 +50,7 @@ export async function GET(request: Request) {
         }
 
         // Create response with cookie
-        const response = NextResponse.redirect("/dashboard")
+        const response = NextResponse.redirect(new URL("/dashboard", request.url))
         response.cookies.set({
             name: "twitter_access_token",
             value: data.access_token,
@@ -60,6 +63,6 @@ export async function GET(request: Request) {
         return response
     } catch (error) {
         console.error("OAuth callback error:", error)
-        return NextResponse.redirect("/?error=auth_failed")
+        return NextResponse.redirect(new URL("/?error=auth_failed", request.url))
     }
 } 
