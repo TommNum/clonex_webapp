@@ -3,8 +3,16 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
+interface User {
+    id: string
+    username: string
+    profileImageUrl?: string
+}
+
 interface AuthContextType {
     isAuthenticated: boolean
+    user: User | null
+    setUser: (user: User | null) => void
     login: () => void
     logout: () => void
 }
@@ -13,6 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [user, setUser] = useState<User | null>(null)
     const router = useRouter()
 
     useEffect(() => {
@@ -64,12 +73,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = () => {
         localStorage.removeItem('twitter_access_token')
+        localStorage.removeItem('twitter_refresh_token')
         setIsAuthenticated(false)
+        setUser(null)
         router.push("/")
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, setUser, login, logout }}>
             {children}
         </AuthContext.Provider>
     )
