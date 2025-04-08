@@ -21,12 +21,6 @@ function AuthCallbackContent() {
                     return
                 }
 
-                // Exchange code for token via our backend
-                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`)
-                if (!response.ok) {
-                    throw new Error("Failed to exchange code for token")
-                }
-
                 // Complete the login process
                 await login()
 
