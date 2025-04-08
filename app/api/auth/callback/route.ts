@@ -60,25 +60,13 @@ export async function GET(request: Request) {
             throw new Error(data.error_description || "Failed to get access token")
         }
 
-        // Create response with cookie
-        const response = NextResponse.redirect(new URL("/dashboard", baseUrl))
-
-        // Clear the code verifier cookie
-        response.cookies.delete("code_verifier")
-
-        // Set the access token cookie
-        response.cookies.set({
-            name: "twitter_access_token",
-            value: data.access_token,
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            path: "/",
-        })
-
-        console.log("Setting cookie with response:", {
-            name: "twitter_access_token",
-            value: data.access_token,
+        // Create response with cookie using Set-Cookie header
+        const response = new Response(null, {
+            status: 302,
+            headers: {
+                "Location": new URL("/dashboard", baseUrl).toString(),
+                "Set-Cookie": `twitter_access_token=${data.access_token}; Path=/; SameSite=Lax; Secure=${process.env.NODE_ENV === "production"}; HttpOnly=false`,
+            },
         })
 
         return response
