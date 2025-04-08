@@ -36,12 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [])
 
     const login = () => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL
-        if (!apiUrl) {
-            console.error("NEXT_PUBLIC_API_URL is not defined")
-            return
-        }
-        window.location.href = `${apiUrl}/auth/twitter`
+        window.location.href = "/api/auth/twitter"
     }
 
     const logout = async () => {
