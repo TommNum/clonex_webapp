@@ -6,23 +6,19 @@ export default function Dashboard() {
     const { isAuthenticated } = useAuth()
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white">
-            <div className="container mx-auto px-4 py-8">
-                <h1 className="mb-8 text-4xl font-bold">Dashboard</h1>
+        <div className="min-h-screen bg-black text-white p-8">
+            <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl font-bold mb-8 font-syncopate">Dashboard</h1>
 
                 {isAuthenticated ? (
-                    <div className="rounded-lg bg-gray-800 p-6">
-                        <h2 className="mb-4 text-2xl font-semibold">Welcome to your Dashboard</h2>
-                        <p className="text-gray-300">
-                            You are now connected to X. Here you can manage your settings and preferences.
-                        </p>
+                    <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm">
+                        <h2 className="text-2xl font-semibold mb-4 font-cormorant">Welcome to your Dashboard</h2>
+                        <p className="text-lg font-cormorant">You are now connected to X.</p>
                     </div>
                 ) : (
-                    <div className="rounded-lg bg-gray-800 p-6">
-                        <h2 className="mb-4 text-2xl font-semibold">Not authenticated</h2>
-                        <p className="text-gray-300">
-                            Please connect your X account to see the dashboard.
-                        </p>
+                    <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm">
+                        <h2 className="text-2xl font-semibold mb-4 font-cormorant">Not Authenticated</h2>
+                        <p className="text-lg font-cormorant">Please connect your X account to access the dashboard.</p>
                     </div>
                 )}
             </div>
