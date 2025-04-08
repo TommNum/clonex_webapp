@@ -49,7 +49,7 @@ export async function GET(request: Request) {
         })
 
         const data = await tokenResponse.json()
-        console.log("Twitter response:", data)
+        console.log("Token exchange response:", data)
 
         if (!tokenResponse.ok) {
             console.error("Token exchange failed:", {
@@ -74,6 +74,13 @@ export async function GET(request: Request) {
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             path: "/",
+            domain: process.env.NODE_ENV === "production" ? ".railway.app" : undefined,
+        })
+
+        console.log("Setting cookie with response:", {
+            name: "twitter_access_token",
+            value: data.access_token,
+            domain: process.env.NODE_ENV === "production" ? ".railway.app" : undefined,
         })
 
         return response
