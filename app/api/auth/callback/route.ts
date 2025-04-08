@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server"
-import { cookies } from "next/headers"
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -8,13 +7,6 @@ export async function GET(request: Request) {
 
     if (!code) {
         return NextResponse.json({ error: "No code provided" }, { status: 400 })
-    }
-
-    // Get the code verifier from cookies
-    const cookieStore = cookies()
-    const codeVerifier = cookieStore.get("code_verifier")?.value
-    if (!codeVerifier) {
-        return NextResponse.json({ error: "No code verifier found" }, { status: 400 })
     }
 
     try {
@@ -32,7 +24,7 @@ export async function GET(request: Request) {
                 grant_type: "authorization_code",
                 client_id: process.env.TWITTER_CLIENT_ID!,
                 redirect_uri: process.env.TWITTER_REDIRECT_URI!,
-                code_verifier: codeVerifier,
+                code_verifier: searchParams.get("code_verifier")!,
             }),
         })
 

@@ -28,24 +28,8 @@ function AuthCallbackContent() {
                     return
                 }
 
-                // Exchange code for token
-                const response = await fetch("https://api.twitter.com/2/oauth2/token", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        "Authorization": `Basic ${Buffer.from(
-                            `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
-                        ).toString("base64")}`,
-                    },
-                    body: new URLSearchParams({
-                        code,
-                        grant_type: "authorization_code",
-                        client_id: process.env.TWITTER_CLIENT_ID!,
-                        redirect_uri: process.env.TWITTER_REDIRECT_URI!,
-                        code_verifier: codeVerifier,
-                    }),
-                })
-
+                // Exchange code for token through our server
+                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}&code_verifier=${codeVerifier}`)
                 if (!response.ok) {
                     const error = await response.text()
                     console.error("Token exchange failed:", error)
