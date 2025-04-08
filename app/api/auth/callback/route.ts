@@ -70,7 +70,7 @@ export async function GET(request: Request) {
         response.cookies.set({
             name: "twitter_access_token",
             value: data.access_token,
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             path: "/",
