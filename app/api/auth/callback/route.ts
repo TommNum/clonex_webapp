@@ -33,7 +33,6 @@ export async function GET(request: Request) {
                 grant_type: "authorization_code",
                 client_id: process.env.TWITTER_CLIENT_ID,
                 redirect_uri: process.env.TWITTER_REDIRECT_URI,
-                code_verifier: "challenge", // In production, use proper PKCE
             }),
         })
 
