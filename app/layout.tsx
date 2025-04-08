@@ -4,6 +4,8 @@ import { Inter, Syncopate, Cormorant_Garamond } from "next/font/google"
 import StardustCursor from "@/components/StardustCursor"
 import AudioPlayer from "@/components/AudioPlayer"
 import Script from "next/script"
+import type { Metadata } from "next"
+import { AuthProvider } from "@/contexts/AuthContext"
 
 const inter = Inter({ subsets: ["latin"] })
 const syncopate = Syncopate({
@@ -17,10 +19,9 @@ const cormorantGaramond = Cormorant_Garamond({
   variable: "--font-cormorant",
 })
 
-export const metadata = {
-  title: "CloneX - Your Digital Clone",
-  description: "Create your digital clone with CloneX",
-    generator: 'v0.dev'
+export const metadata: Metadata = {
+  title: "CLONEX",
+  description: "Your AI Clone",
 }
 
 export default function RootLayout({
@@ -36,7 +37,9 @@ export default function RootLayout({
         <link rel="preload" href="/ethereal-passage.wav" as="audio" />
       </head>
       <body className={`${inter.className} ${syncopate.variable} ${cormorantGaramond.variable}`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <StardustCursor />
 
         {/* Hidden audio element with multiple sources */}
@@ -73,7 +76,5 @@ export default function RootLayout({
     </html>
   )
 }
-
-
 
 import './globals.css'
