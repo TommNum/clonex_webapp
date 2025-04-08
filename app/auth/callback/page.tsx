@@ -21,15 +21,8 @@ function AuthCallbackContent() {
                     return
                 }
 
-                const apiUrl = process.env.NEXT_PUBLIC_API_URL
-                if (!apiUrl) {
-                    console.error("NEXT_PUBLIC_API_URL is not defined")
-                    router.push("/?error=config_error")
-                    return
-                }
-
                 // Exchange code for token via our backend
-                const response = await fetch(`${apiUrl}/auth/callback?code=${code}&state=${state}`)
+                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`)
                 if (!response.ok) {
                     throw new Error("Failed to exchange code for token")
                 }
