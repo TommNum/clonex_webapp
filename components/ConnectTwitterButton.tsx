@@ -1,17 +1,17 @@
 "use client"
 
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/contexts/AuthContext"
 import GlassButton from "./GlassButton"
 
 export default function ConnectTwitterButton() {
-    const { user, connectTwitter, logout } = useAuth()
+    const { isAuthenticated, login, logout } = useAuth()
 
     return (
         <GlassButton
-            onClick={user ? logout : connectTwitter}
+            onClick={isAuthenticated ? logout : login}
             className="w-full bg-gradient-to-b from-purple-500/40 to-purple-500/10"
         >
-            {user ? "Disconnect X" : "Connect X"}
+            {isAuthenticated ? "Disconnect X" : "Connect X"}
         </GlassButton>
     )
 } 

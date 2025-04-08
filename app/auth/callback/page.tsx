@@ -2,14 +2,14 @@
 
 import { useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuth } from "@/contexts/AuthContext"
 
 function AuthCallbackContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const code = searchParams.get("code")
     const state = searchParams.get("state")
-    const { handleCallback } = useAuth()
+    const { login } = useAuth()
 
     useEffect(() => {
         async function handleOAuthCallback() {
@@ -21,8 +21,21 @@ function AuthCallbackContent() {
                     return
                 }
 
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL
+                if (!apiUrl) {
+                    console.error("NEXT_PUBLIC_API_URL is not defined")
+                    router.push("/?error=config_error")
+                    return
+                }
+
                 // Exchange code for token via our backend
-                await handleCallback(code, state)
+                const response = await fetch(`${apiUrl}/auth/callback?code=${code}&state=${state}`)
+                if (!response.ok) {
+                    throw new Error("Failed to exchange code for token")
+                }
+
+                // Complete the login process
+                await login()
 
                 // Redirect to dashboard on success
                 router.push("/dashboard")
@@ -35,7 +48,7 @@ function AuthCallbackContent() {
         if (code) {
             handleOAuthCallback()
         }
-    }, [code, state, router, handleCallback])
+    }, [code, state, router, login])
 
     return (
         <div className="min-h-screen flex items-center justify-center">
