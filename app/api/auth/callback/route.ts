@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -7,6 +8,13 @@ export async function GET(request: Request) {
 
     if (!code) {
         return NextResponse.redirect(new URL("/?error=no_code", request.url))
+    }
+
+    // Get the code verifier from cookies
+    const cookieStore = await cookies()
+    const codeVerifier = cookieStore.get("code_verifier")?.value
+    if (!codeVerifier) {
+        return NextResponse.redirect(new URL("/?error=no_verifier", request.url))
     }
 
     // Check for required environment variables
@@ -33,6 +41,7 @@ export async function GET(request: Request) {
                 grant_type: "authorization_code",
                 client_id: process.env.TWITTER_CLIENT_ID,
                 redirect_uri: process.env.TWITTER_REDIRECT_URI,
+                code_verifier: codeVerifier,
             }),
         })
 
@@ -50,6 +59,11 @@ export async function GET(request: Request) {
 
         // Create response with cookie
         const response = NextResponse.redirect(new URL("/dashboard", request.url))
+
+        // Clear the code verifier cookie
+        response.cookies.delete("code_verifier")
+
+        // Set the access token cookie
         response.cookies.set({
             name: "twitter_access_token",
             value: data.access_token,
