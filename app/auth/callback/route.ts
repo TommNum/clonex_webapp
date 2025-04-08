@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
         if (!code) {
             console.error("Missing code parameter")
-            return NextResponse.redirect(new URL("/?error=missing_code", request.url))
+            return NextResponse.redirect(new URL("/?error=missing_code", process.env.NEXT_PUBLIC_BASE_URL))
         }
 
         // Get code_verifier from cookie
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
 
         if (!codeVerifier) {
             console.error("Missing code verifier")
-            return NextResponse.redirect(new URL("/?error=missing_verifier", request.url))
+            return NextResponse.redirect(new URL("/?error=missing_verifier", process.env.NEXT_PUBLIC_BASE_URL))
         }
 
         // Exchange code for token
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
         if (!tokenResponse.ok) {
             const errorText = await tokenResponse.text()
             console.error("Token exchange failed:", errorText)
-            return NextResponse.redirect(new URL("/?error=token_exchange_failed", request.url))
+            return NextResponse.redirect(new URL("/?error=token_exchange_failed", process.env.NEXT_PUBLIC_BASE_URL))
         }
 
         const tokenData = await tokenResponse.json()
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
         const { access_token } = tokenData
 
         // Create response with token in cookie
-        const response = NextResponse.redirect(new URL("/dashboard", request.url))
+        const response = NextResponse.redirect(new URL("/dashboard", process.env.NEXT_PUBLIC_BASE_URL))
         response.headers.set(
             "Set-Cookie",
             `twitter_access_token=${access_token}; Path=/; SameSite=Lax; Secure`
@@ -68,6 +68,6 @@ export async function GET(request: Request) {
         return response
     } catch (error) {
         console.error("Error in callback handler:", error)
-        return NextResponse.redirect(new URL("/?error=server_error", request.url))
+        return NextResponse.redirect(new URL("/?error=server_error", process.env.NEXT_PUBLIC_BASE_URL))
     }
 } 
