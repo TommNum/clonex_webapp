@@ -42,11 +42,14 @@ function AuthCallbackContent() {
                 const data = await response.json()
                 console.log("Token exchange response data:", data)
 
-                // Store the token
+                // Store the token in localStorage
                 if (data.access_token) {
-                    console.log("Setting access token cookie")
-                    document.cookie = `twitter_access_token=${data.access_token}; path=/; secure; SameSite=Lax`
-                    console.log("Current cookies:", document.cookie)
+                    console.log("Setting access token in localStorage")
+                    localStorage.setItem('twitter_access_token', data.access_token)
+                    console.log("Current localStorage:", {
+                        access_token: localStorage.getItem('twitter_access_token'),
+                        code_verifier: localStorage.getItem('code_verifier')
+                    })
                 } else {
                     console.error("No access token in response:", data)
                     throw new Error("No access token received")

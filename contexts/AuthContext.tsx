@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
 interface AuthContextType {
@@ -11,42 +11,59 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-function getCookie(name: string) {
-    const value = `; ${document.cookie}`
-    const parts = value.split(`; ${name}=`)
-    if (parts.length === 2) return parts.pop()?.split(';').shift()
-    return undefined
-}
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
-        // Check for token in cookies on mount
-        const checkAuth = () => {
-            const token = getCookie("twitter_access_token")
-            console.log("Auth check - token found:", !!token, "token:", token, "all cookies:", document.cookie)
-            if (token) {
-                setIsAuthenticated(true)
-            }
-        }
-
-        // Check immediately
-        checkAuth()
-
-        // Also check after a short delay to ensure cookie is available
-        const timeoutId = setTimeout(checkAuth, 1000)
-
-        return () => clearTimeout(timeoutId)
+        // Check for token in localStorage on mount
+        const token = localStorage.getItem('twitter_access_token')
+        console.log("Auth check - token found:", !!token, "token:", token)
+        setIsAuthenticated(!!token)
     }, [])
 
     const login = () => {
-        router.push("/api/auth/twitter")
+        // Generate PKCE challenge
+        const generateRandomString = (length: number) => {
+            const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+            let text = ''
+            for (let i = 0; i < length; i++) {
+                text += possible.charAt(Math.floor(Math.random() * possible.length))
+            }
+            return text
+        }
+
+        const generateCodeChallenge = async (codeVerifier: string) => {
+            const encoder = new TextEncoder()
+            const data = encoder.encode(codeVerifier)
+            const digest = await window.crypto.subtle.digest('SHA-256', data)
+            return btoa(String.fromCharCode(...new Uint8Array(digest)))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '')
+        }
+
+        const codeVerifier = generateRandomString(128)
+        localStorage.setItem('code_verifier', codeVerifier)
+        generateCodeChallenge(codeVerifier).then(codeChallenge => {
+            const state = generateRandomString(16)
+            const params = new URLSearchParams({
+                response_type: 'code',
+                client_id: process.env.NEXT_PUBLIC_TWITTER_CLIENT_ID!,
+                redirect_uri: process.env.NEXT_PUBLIC_TWITTER_REDIRECT_URI!,
+                scope: 'tweet.read users.read offline.access',
+                state,
+                code_challenge: codeChallenge,
+                code_challenge_method: 'S256',
+            })
+
+            const authUrl = `https://twitter.com/i/oauth2/authorize?${params.toString()}`
+            window.location.href = authUrl
+        })
     }
 
     const logout = () => {
-        document.cookie = "twitter_access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        localStorage.removeItem('twitter_access_token')
         setIsAuthenticated(false)
         router.push("/")
     }
