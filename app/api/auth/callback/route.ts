@@ -9,7 +9,17 @@ export async function GET(request: Request) {
         return NextResponse.redirect("/?error=no_code")
     }
 
+    // Check for required environment variables
+    if (!process.env.TWITTER_CLIENT_ID || !process.env.TWITTER_REDIRECT_URI) {
+        console.error("Missing required environment variables:", {
+            hasClientId: !!process.env.TWITTER_CLIENT_ID,
+            hasRedirectUri: !!process.env.TWITTER_REDIRECT_URI
+        })
+        return NextResponse.redirect("/?error=config_error")
+    }
+
     try {
+        console.log("Exchanging code for token...")
         const tokenResponse = await fetch("https://api.twitter.com/2/oauth2/token", {
             method: "POST",
             headers: {
@@ -18,15 +28,21 @@ export async function GET(request: Request) {
             body: new URLSearchParams({
                 code,
                 grant_type: "authorization_code",
-                client_id: process.env.TWITTER_CLIENT_ID!,
-                redirect_uri: process.env.TWITTER_REDIRECT_URI!,
+                client_id: process.env.TWITTER_CLIENT_ID,
+                redirect_uri: process.env.TWITTER_REDIRECT_URI,
                 code_verifier: "challenge", // In production, use proper PKCE
             }),
         })
 
         const data = await tokenResponse.json()
+        console.log("Twitter response:", data)
 
         if (!tokenResponse.ok) {
+            console.error("Token exchange failed:", {
+                status: tokenResponse.status,
+                statusText: tokenResponse.statusText,
+                data
+            })
             throw new Error(data.error_description || "Failed to get access token")
         }
 
