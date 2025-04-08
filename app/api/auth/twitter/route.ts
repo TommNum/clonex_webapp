@@ -26,7 +26,7 @@ export async function GET() {
     response.cookies.set({
         name: "code_verifier",
         value: codeVerifier,
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
