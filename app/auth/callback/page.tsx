@@ -3,13 +3,13 @@
 import { useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
+import Cookies from "js-cookie"
 
 function AuthCallbackContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const code = searchParams.get("code")
     const state = searchParams.get("state")
-    const { login } = useAuth()
 
     useEffect(() => {
         async function handleOAuthCallback() {
@@ -21,10 +21,20 @@ function AuthCallbackContent() {
                     return
                 }
 
-                // Complete the login process
-                await login()
+                // Exchange code for token
+                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`)
+                if (!response.ok) {
+                    throw new Error("Failed to exchange code for token")
+                }
 
-                // Redirect to dashboard on success
+                const data = await response.json()
+
+                // Store the token
+                if (data.access_token) {
+                    Cookies.set("twitter_access_token", data.access_token, { expires: 7 }) // Token expires in 7 days
+                }
+
+                // Redirect to dashboard
                 router.push("/dashboard")
             } catch (error) {
                 console.error("Error handling callback:", error)
@@ -35,7 +45,7 @@ function AuthCallbackContent() {
         if (code) {
             handleOAuthCallback()
         }
-    }, [code, state, router, login])
+    }, [code, state, router])
 
     return (
         <div className="min-h-screen flex items-center justify-center">
