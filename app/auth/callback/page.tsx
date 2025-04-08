@@ -1,53 +1,74 @@
 "use client"
 
 import { useEffect, Suspense } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
 
-function CallbackContent() {
+function AuthCallbackContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const { login } = useAuth()
+    const code = searchParams.get("code")
+    const state = searchParams.get("state")
 
     useEffect(() => {
-        const code = searchParams.get("code")
-        const state = searchParams.get("state")
-        console.log("Callback page rendered with code:", code, "state:", state)
+        async function handleOAuthCallback() {
+            try {
+                // Make sure we have the code
+                if (!code || !state) {
+                    console.error("Missing code or state")
+                    router.push("/?error=missing_params")
+                    return
+                }
 
-        if (!code) {
-            console.error("No code provided")
-            router.push("/?error=no_code")
-            return
+                // Exchange code for token
+                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`)
+                if (!response.ok) {
+                    throw new Error("Failed to exchange code for token")
+                }
+
+                const data = await response.json()
+
+                // Store the token
+                if (data.access_token) {
+                    document.cookie = `twitter_access_token=${data.access_token}; path=/; secure`
+                }
+
+                // Redirect to dashboard
+                router.push("/dashboard")
+            } catch (error) {
+                console.error("Error handling callback:", error)
+                router.push("/?error=auth_failed")
+            }
         }
 
-        // The token exchange is handled by the API route
-        // We just need to redirect to the dashboard
-        router.push("/dashboard")
-    }, [searchParams, router])
+        if (code) {
+            handleOAuthCallback()
+        }
+    }, [code, state, router])
 
     return (
-        <div className="flex min-h-screen items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center">
             <div className="text-center">
-                <h1 className="mb-4 text-2xl font-bold">Connecting to X...</h1>
-                <p className="text-gray-400">Please wait while we complete the connection.</p>
+                <h1 className="text-2xl font-semibold mb-4">Connecting your account...</h1>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
             </div>
         </div>
     )
 }
 
-export default function CallbackPage() {
+export default function AuthCallback() {
     return (
         <Suspense
             fallback={
-                <div className="flex min-h-screen items-center justify-center">
+                <div className="min-h-screen flex items-center justify-center">
                     <div className="text-center">
-                        <h1 className="mb-4 text-2xl font-bold">Loading...</h1>
-                        <p className="text-gray-400">Please wait while we load the page.</p>
+                        <h1 className="text-2xl font-semibold mb-4">Loading...</h1>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
                     </div>
                 </div>
             }
         >
-            <CallbackContent />
+            <AuthCallbackContent />
         </Suspense>
     )
 } 
