@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import Cookies from "js-cookie"
 
 interface AuthContextType {
     isAuthenticated: boolean
@@ -12,6 +11,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+function getCookie(name: string) {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop()?.split(';').shift()
+    return undefined
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const router = useRouter()
@@ -19,8 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Check for token in cookies on mount
         const checkAuth = () => {
-            const token = Cookies.get("twitter_access_token")
-            console.log("Auth check - token found:", !!token, "token:", token)
+            const token = getCookie("twitter_access_token")
+            console.log("Auth check - token found:", !!token, "token:", token, "all cookies:", document.cookie)
             if (token) {
                 setIsAuthenticated(true)
             }
@@ -40,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     const logout = () => {
-        Cookies.remove("twitter_access_token")
+        document.cookie = "twitter_access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
         setIsAuthenticated(false)
         router.push("/")
     }
