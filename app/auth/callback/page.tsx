@@ -13,41 +13,58 @@ function AuthCallbackContent() {
     useEffect(() => {
         async function handleOAuthCallback() {
             try {
-                console.log("Starting OAuth callback flow")
-                console.log("URL params:", { code, state })
-
                 // Make sure we have the code
                 if (!code || !state) {
-                    console.error("Missing code or state:", { code, state })
+                    console.error("Missing code or state")
                     router.push("/?error=missing_params")
                     return
                 }
 
-                console.log("Exchanging code for token...")
+                // Get the code verifier from cookies
+                const codeVerifier = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('code_verifier='))
+                    ?.split('=')[1]
+
+                if (!codeVerifier) {
+                    console.error("No code verifier found")
+                    router.push("/?error=no_verifier")
+                    return
+                }
+
                 // Exchange code for token
-                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`, {
-                    redirect: 'manual' // Don't follow redirects automatically
+                const response = await fetch("https://api.twitter.com/2/oauth2/token", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Authorization": `Basic ${Buffer.from(
+                            `${process.env.TWITTER_CLIENT_ID}:${process.env.TWITTER_CLIENT_SECRET}`
+                        ).toString("base64")}`,
+                    },
+                    body: new URLSearchParams({
+                        code,
+                        grant_type: "authorization_code",
+                        client_id: process.env.TWITTER_CLIENT_ID!,
+                        redirect_uri: process.env.TWITTER_REDIRECT_URI!,
+                        code_verifier: codeVerifier,
+                    }),
                 })
-                console.log("Token exchange response status:", response.status)
 
                 if (!response.ok) {
-                    const errorText = await response.text()
-                    console.error("Token exchange failed:", errorText)
+                    const error = await response.text()
+                    console.error("Token exchange failed:", error)
                     throw new Error("Failed to exchange code for token")
                 }
 
-                // Get the cookie from the response headers
-                const cookieHeader = response.headers.get('Set-Cookie')
-                console.log("Received Set-Cookie header:", cookieHeader)
+                const data = await response.json()
 
-                if (cookieHeader) {
-                    // The cookie is already set by the browser, we just need to redirect
-                    console.log("Cookie set by server, redirecting to dashboard...")
-                    router.push("/dashboard")
-                } else {
-                    console.error("No Set-Cookie header in response")
-                    router.push("/?error=no_token")
+                // Store the token
+                if (data.access_token) {
+                    document.cookie = `twitter_access_token=${data.access_token}; path=/; secure`
                 }
+
+                // Redirect to dashboard
+                router.push("/dashboard")
             } catch (error) {
                 console.error("Error handling callback:", error)
                 router.push("/?error=auth_failed")
