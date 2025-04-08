@@ -2,14 +2,14 @@
 
 import { useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/AuthContext"
+import { useAuth } from "@/hooks/useAuth"
 
 function AuthCallbackContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const code = searchParams.get("code")
     const state = searchParams.get("state")
-    const { login } = useAuth()
+    const { handleCallback } = useAuth()
 
     useEffect(() => {
         async function handleOAuthCallback() {
@@ -21,8 +21,8 @@ function AuthCallbackContent() {
                     return
                 }
 
-                // Complete the login process
-                await login()
+                // Exchange code for token via our backend
+                await handleCallback(code, state)
 
                 // Redirect to dashboard on success
                 router.push("/dashboard")
@@ -35,7 +35,7 @@ function AuthCallbackContent() {
         if (code) {
             handleOAuthCallback()
         }
-    }, [code, state, router, login])
+    }, [code, state, router, handleCallback])
 
     return (
         <div className="min-h-screen flex items-center justify-center">
