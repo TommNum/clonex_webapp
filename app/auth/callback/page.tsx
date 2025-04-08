@@ -12,6 +12,7 @@ function CallbackContent() {
     useEffect(() => {
         const code = searchParams.get("code")
         const state = searchParams.get("state")
+        console.log("Callback page rendered with code:", code, "state:", state)
 
         if (!code) {
             console.error("No code provided")
