@@ -28,8 +28,11 @@ function AuthCallbackContent() {
                     return
                 }
 
+                console.log("Starting token exchange...")
                 // Exchange code for token through our server
                 const response = await fetch(`/api/auth/callback?code=${code}&state=${state}&code_verifier=${codeVerifier}`)
+                console.log("Token exchange response status:", response.status)
+
                 if (!response.ok) {
                     const error = await response.text()
                     console.error("Token exchange failed:", error)
@@ -37,16 +40,23 @@ function AuthCallbackContent() {
                 }
 
                 const data = await response.json()
+                console.log("Token exchange response data:", data)
 
                 // Store the token
                 if (data.access_token) {
-                    document.cookie = `twitter_access_token=${data.access_token}; path=/; secure`
+                    console.log("Setting access token cookie")
+                    document.cookie = `twitter_access_token=${data.access_token}; path=/; secure; SameSite=Lax`
+                    console.log("Current cookies:", document.cookie)
+                } else {
+                    console.error("No access token in response:", data)
+                    throw new Error("No access token received")
                 }
 
                 // Clean up the code verifier
                 localStorage.removeItem('code_verifier')
 
                 // Redirect to dashboard
+                console.log("Redirecting to dashboard...")
                 router.push("/dashboard")
             } catch (error) {
                 console.error("Error handling callback:", error)

@@ -4,9 +4,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const code = searchParams.get("code")
     const state = searchParams.get("state")
+    const codeVerifier = searchParams.get("code_verifier")
+
+    console.log("Token exchange request received:", { code, state, hasCodeVerifier: !!codeVerifier })
 
     if (!code) {
         return NextResponse.json({ error: "No code provided" }, { status: 400 })
+    }
+
+    if (!codeVerifier) {
+        return NextResponse.json({ error: "No code verifier provided" }, { status: 400 })
     }
 
     try {
@@ -24,11 +31,12 @@ export async function GET(request: Request) {
                 grant_type: "authorization_code",
                 client_id: process.env.TWITTER_CLIENT_ID!,
                 redirect_uri: process.env.TWITTER_REDIRECT_URI!,
-                code_verifier: searchParams.get("code_verifier")!,
+                code_verifier: codeVerifier,
             }),
         })
 
         const data = await tokenResponse.json()
+        console.log("Token exchange response:", { status: tokenResponse.status, data })
 
         if (!tokenResponse.ok) {
             console.error("Token exchange failed:", data)
