@@ -25,7 +25,9 @@ function AuthCallbackContent() {
 
                 console.log("Exchanging code for token...")
                 // Exchange code for token
-                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`)
+                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`, {
+                    redirect: 'manual' // Don't follow redirects automatically
+                })
                 console.log("Token exchange response status:", response.status)
 
                 if (!response.ok) {
@@ -34,21 +36,18 @@ function AuthCallbackContent() {
                     throw new Error("Failed to exchange code for token")
                 }
 
-                const data = await response.json()
-                console.log("Token exchange successful, received data:", data)
+                // Get the cookie from the response headers
+                const cookieHeader = response.headers.get('Set-Cookie')
+                console.log("Received Set-Cookie header:", cookieHeader)
 
-                // Store the token
-                if (data.access_token) {
-                    console.log("Setting access token cookie")
-                    document.cookie = `twitter_access_token=${data.access_token}; path=/; secure`
-                    console.log("Current cookies:", document.cookie)
+                if (cookieHeader) {
+                    // The cookie is already set by the browser, we just need to redirect
+                    console.log("Cookie set by server, redirecting to dashboard...")
+                    router.push("/dashboard")
                 } else {
-                    console.error("No access token in response:", data)
+                    console.error("No Set-Cookie header in response")
+                    router.push("/?error=no_token")
                 }
-
-                // Redirect to dashboard
-                console.log("Redirecting to dashboard...")
-                router.push("/dashboard")
             } catch (error) {
                 console.error("Error handling callback:", error)
                 router.push("/?error=auth_failed")
