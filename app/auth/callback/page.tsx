@@ -1,75 +1,35 @@
 "use client"
 
-import { useEffect, Suspense } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/contexts/AuthContext"
-import Cookies from "js-cookie"
 
-function AuthCallbackContent() {
+export default function CallbackPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const code = searchParams.get("code")
-    const state = searchParams.get("state")
+    const { login } = useAuth()
 
     useEffect(() => {
-        async function handleOAuthCallback() {
-            try {
-                // Make sure we have the code
-                if (!code || !state) {
-                    console.error("Missing code or state")
-                    router.push("/?error=missing_params")
-                    return
-                }
+        const code = searchParams.get("code")
+        const state = searchParams.get("state")
 
-                // Exchange code for token
-                const response = await fetch(`/api/auth/callback?code=${code}&state=${state}`)
-                if (!response.ok) {
-                    throw new Error("Failed to exchange code for token")
-                }
-
-                const data = await response.json()
-
-                // Store the token
-                if (data.access_token) {
-                    Cookies.set("twitter_access_token", data.access_token, { expires: 7 }) // Token expires in 7 days
-                }
-
-                // Redirect to dashboard
-                router.push("/dashboard")
-            } catch (error) {
-                console.error("Error handling callback:", error)
-                router.push("/?error=auth_failed")
-            }
+        if (!code) {
+            console.error("No code provided")
+            router.push("/?error=no_code")
+            return
         }
 
-        if (code) {
-            handleOAuthCallback()
-        }
-    }, [code, state, router])
+        // The token exchange is handled by the API route
+        // We just need to redirect to the dashboard
+        router.push("/dashboard")
+    }, [searchParams, router])
 
     return (
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center">
             <div className="text-center">
-                <h1 className="text-2xl font-semibold mb-4">Connecting your account...</h1>
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                <h1 className="mb-4 text-2xl font-bold">Connecting to X...</h1>
+                <p className="text-gray-400">Please wait while we complete the connection.</p>
             </div>
         </div>
-    )
-}
-
-export default function AuthCallback() {
-    return (
-        <Suspense
-            fallback={
-                <div className="min-h-screen flex items-center justify-center">
-                    <div className="text-center">
-                        <h1 className="text-2xl font-semibold mb-4">Loading...</h1>
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                    </div>
-                </div>
-            }
-        >
-            <AuthCallbackContent />
-        </Suspense>
     )
 } 
