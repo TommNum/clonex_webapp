@@ -18,11 +18,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         // Check for token in cookies on mount
-        const token = Cookies.get("twitter_access_token")
-        console.log("Auth check - token found:", !!token, "token:", token)
-        if (token) {
-            setIsAuthenticated(true)
+        const checkAuth = () => {
+            const token = Cookies.get("twitter_access_token")
+            console.log("Auth check - token found:", !!token, "token:", token)
+            if (token) {
+                setIsAuthenticated(true)
+            }
         }
+
+        // Check immediately
+        checkAuth()
+
+        // Also check after a short delay to ensure cookie is available
+        const timeoutId = setTimeout(checkAuth, 1000)
+
+        return () => clearTimeout(timeoutId)
     }, [])
 
     const login = () => {
