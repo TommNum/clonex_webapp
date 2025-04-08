@@ -6,15 +6,18 @@ export async function GET(request: Request) {
     const code = searchParams.get("code")
     const state = searchParams.get("state")
 
+    // Get the base URL from environment or use the request URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.url
+
     if (!code) {
-        return NextResponse.redirect(new URL("/?error=no_code", request.url))
+        return NextResponse.redirect(new URL("/?error=no_code", baseUrl))
     }
 
     // Get the code verifier from cookies
     const cookieStore = await cookies()
     const codeVerifier = cookieStore.get("code_verifier")?.value
     if (!codeVerifier) {
-        return NextResponse.redirect(new URL("/?error=no_verifier", request.url))
+        return NextResponse.redirect(new URL("/?error=no_verifier", baseUrl))
     }
 
     // Check for required environment variables
@@ -23,7 +26,7 @@ export async function GET(request: Request) {
             hasClientId: !!process.env.TWITTER_CLIENT_ID,
             hasRedirectUri: !!process.env.TWITTER_REDIRECT_URI
         })
-        return NextResponse.redirect(new URL("/?error=config_error", request.url))
+        return NextResponse.redirect(new URL("/?error=config_error", baseUrl))
     }
 
     try {
@@ -58,7 +61,7 @@ export async function GET(request: Request) {
         }
 
         // Create response with cookie
-        const response = NextResponse.redirect(new URL("/dashboard", request.url))
+        const response = NextResponse.redirect(new URL("/dashboard", baseUrl))
 
         // Clear the code verifier cookie
         response.cookies.delete("code_verifier")
@@ -76,6 +79,6 @@ export async function GET(request: Request) {
         return response
     } catch (error) {
         console.error("OAuth callback error:", error)
-        return NextResponse.redirect(new URL("/?error=auth_failed", request.url))
+        return NextResponse.redirect(new URL("/?error=auth_failed", baseUrl))
     }
 } 
