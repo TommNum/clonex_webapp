@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-const BACKEND_URL = 'https://wholesome-creation-production.up.railway.app';
+// Use environment variable for backend URL
+const BACKEND_URL = process.env.BACKEND_URL || 'https://wholesome-creation-production.up.railway.app';
 
 export async function GET(request: Request) {
     try {
@@ -10,8 +11,10 @@ export async function GET(request: Request) {
 
         const url = `${BACKEND_URL}/api/timeline`;
         console.log('=== Timeline API Request ===');
+        console.log('Environment:', process.env.NODE_ENV);
+        console.log('Backend URL:', BACKEND_URL);
         console.log('Request URL:', request.url);
-        console.log('Backend URL:', url);
+        console.log('Full Backend URL:', url);
         console.log('Query params:', { nextToken });
 
         const response = await axios.get(url, {
