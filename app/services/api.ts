@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TimelineResponse } from '../types/timeline';
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    baseURL: 'https://wholesome-creation.railway.internal',
     withCredentials: true // Required for cookies
 });
 
