@@ -3,7 +3,7 @@ import { TimelineResponse } from '../types/timeline';
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: 'https://clonexwebapp-production.up.railway.app',
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
     withCredentials: true // Required for cookies
 });
 
@@ -15,7 +15,10 @@ export const timelineApi = {
             params.append('next_token', nextToken);
         }
 
-        const response = await api.get<TimelineResponse>(`/api/timeline?${params.toString()}`);
+        // Note: This endpoint is rate limited to 100 requests per 15 minutes
+        const response = await api.get<TimelineResponse>(
+            `/api/timeline?${params.toString()}`
+        );
         return response.data;
     }
 }; 

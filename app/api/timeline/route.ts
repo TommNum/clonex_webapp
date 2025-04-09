@@ -19,13 +19,19 @@ export async function GET(request: Request) {
         console.log('Full Backend URL:', url);
         console.log('Query params:', { nextToken });
         console.log('Cookies:', cookies);
+        console.log('Request Headers:', {
+            origin: request.headers.get('origin'),
+            referer: request.headers.get('referer'),
+            host: request.headers.get('host')
+        });
 
         const response = await axios.get(url, {
             params: { next_token: nextToken },
             withCredentials: true,
             headers: {
                 Cookie: cookies || '',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Origin': 'https://clonexwebapp-production.up.railway.app'
             }
         });
 
@@ -45,6 +51,12 @@ export async function GET(request: Request) {
             console.error('Error Status Text:', error.response?.statusText);
             console.error('Error Data:', error.response?.data);
             console.error('Error Headers:', error.response?.headers);
+            console.error('Error Config:', {
+                baseURL: error.config?.baseURL,
+                url: error.config?.url,
+                method: error.config?.method,
+                headers: error.config?.headers
+            });
         } else {
             console.error('Unknown error:', error);
         }
