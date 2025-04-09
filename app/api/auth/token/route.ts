@@ -7,6 +7,7 @@ export async function POST(request: Request) {
         const codeVerifier = formData.get("code_verifier")
 
         if (!code || !codeVerifier) {
+            console.error("Missing parameters:", { code: !!code, codeVerifier: !!codeVerifier })
             return NextResponse.json({ error: "Missing parameters" }, { status: 400 })
         }
 
@@ -25,13 +26,23 @@ export async function POST(request: Request) {
         })
 
         if (!tokenResponse.ok) {
-            return NextResponse.json({ error: "Token exchange failed" }, { status: 400 })
+            const errorData = await tokenResponse.json()
+            console.error("Twitter token exchange failed:", {
+                status: tokenResponse.status,
+                statusText: tokenResponse.statusText,
+                error: errorData
+            })
+            return NextResponse.json({ 
+                error: errorData.error_description || "Token exchange failed" 
+            }, { status: tokenResponse.status })
         }
 
         const { access_token } = await tokenResponse.json()
         return NextResponse.json({ access_token })
     } catch (error) {
         console.error("Token exchange error:", error)
-        return NextResponse.json({ error: "Server error" }, { status: 500 })
+        return NextResponse.json({ 
+            error: error instanceof Error ? error.message : "Server error" 
+        }, { status: 500 })
     }
 } 
