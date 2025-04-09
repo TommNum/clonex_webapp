@@ -25,10 +25,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter()
 
     useEffect(() => {
-        // Check for token in localStorage on mount
-        const token = localStorage.getItem('twitter_access_token')
-        console.log("Auth check - token found:", !!token, "token:", token)
-        setIsAuthenticated(!!token)
+        // Check for token in cookies on mount
+        const checkAuth = async () => {
+            try {
+                const response = await fetch('/api/auth/me', {
+                    credentials: 'include'
+                })
+                if (response.ok) {
+                    const data = await response.json()
+                    setUser(data)
+                    setIsAuthenticated(true)
+                } else {
+                    setIsAuthenticated(false)
+                    setUser(null)
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error)
+                setIsAuthenticated(false)
+                setUser(null)
+            }
+        }
+        checkAuth()
     }, [])
 
     const login = () => {
@@ -71,12 +88,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
     }
 
-    const logout = () => {
-        localStorage.removeItem('twitter_access_token')
-        localStorage.removeItem('twitter_refresh_token')
-        setIsAuthenticated(false)
-        setUser(null)
-        router.push("/")
+    const logout = async () => {
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                credentials: 'include'
+            })
+            setIsAuthenticated(false)
+            setUser(null)
+            router.push("/")
+        } catch (error) {
+            console.error('Logout failed:', error)
+        }
     }
 
     return (

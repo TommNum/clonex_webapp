@@ -43,6 +43,10 @@ const nextConfig = {
     }
     return config
   },
+  // Add port configuration
+  server: {
+    port: 3004,
+  },
 }
 
 if (userConfig) {

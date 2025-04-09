@@ -22,16 +22,13 @@ export async function GET(request: Request) {
                                 return;
                             }
 
-                            const tokenResponse = await fetch('https://api.twitter.com/2/oauth2/token', {
+                            const tokenResponse = await fetch('${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/token', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/x-www-form-urlencoded',
                                 },
                                 body: new URLSearchParams({
                                     code: '${code}',
-                                    grant_type: 'authorization_code',
-                                    client_id: '${process.env.TWITTER_CLIENT_ID}',
-                                    redirect_uri: '${process.env.TWITTER_REDIRECT_URI}',
                                     code_verifier: codeVerifier,
                                 }),
                             });
@@ -42,9 +39,11 @@ export async function GET(request: Request) {
 
                             const { access_token } = await tokenResponse.json();
                             
-                            // Store the token and redirect
-                            localStorage.setItem('twitter_access_token', access_token);
+                            // Store the token in a cookie
+                            document.cookie = \`twitter_access_token=\${access_token}; path=/; secure; samesite=lax\`;
                             localStorage.removeItem('code_verifier');
+                            
+                            // Redirect to dashboard
                             window.location.href = '${process.env.NEXT_PUBLIC_BASE_URL}/dashboard';
                         } catch (error) {
                             console.error('Error:', error);

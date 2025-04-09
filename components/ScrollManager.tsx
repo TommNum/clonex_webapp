@@ -18,7 +18,7 @@ export default function ScrollManager({ children }: ScrollManagerProps) {
   const totalSections = childrenArray.length
 
   useEffect(() => {
-    if (!containerRef.current || typeof window === 'undefined') return
+    if (!containerRef.current) return
 
     // Function to check if we're in the pricing section
     const checkIfPricingSection = () => {
@@ -164,8 +164,9 @@ export default function ScrollManager({ children }: ScrollManagerProps) {
             <button
               key={index}
               onClick={() => scrollToSection(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSection === index ? "bg-white scale-125" : "bg-gray-500 hover:bg-gray-300"
-                }`}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                currentSection === index ? "bg-white scale-125" : "bg-gray-500 hover:bg-gray-300"
+              }`}
               aria-label={`Go to section ${index + 1}`}
             />
           ))}

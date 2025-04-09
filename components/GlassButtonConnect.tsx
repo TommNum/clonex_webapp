@@ -85,7 +85,7 @@ export default function GlassButtonConnect({ onClick, className = "", isVisible 
           <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           {/* Button text */}
-          <span className="relative font-syncopate font-bold text-xl sm:text-2xl md:text-3xl tracking-wider text-white">
+          <span className="relative font-syncopate font-bold text-xl sm:text-2xl md:text-3xl tracking-wider text-white z-10 flex items-center justify-center">
             CONNECT
           </span>
 
