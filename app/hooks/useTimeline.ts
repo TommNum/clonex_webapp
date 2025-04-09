@@ -15,12 +15,9 @@ export function useTimeline() {
             setLoading(true);
             setError(null);
 
-            console.log('=== Timeline API Request ===');
-            console.log('Environment:', process.env.NODE_ENV);
-            console.log('Backend URL:', process.env.NEXT_PUBLIC_API_URL);
-            console.log('Request URL:', `/api/timeline${nextToken ? `?next_token=${nextToken}` : ''}`);
-            console.log('Full Backend URL:', `${process.env.NEXT_PUBLIC_API_URL}/api/timeline${nextToken ? `?next_token=${nextToken}` : ''}`);
-            console.log('Query params:', { nextToken });
+            // Log session information
+            console.log('=== Timeline Request ===');
+            console.log('Session cookie present:', document.cookie.includes('connect.sid'));
 
             const response = await timelineApi.getTimeline(refresh ? undefined : nextToken);
 
@@ -28,27 +25,23 @@ export function useTimeline() {
             setNextToken(response.meta?.next_token);
             setHasMore(!!response.meta?.next_token);
         } catch (err) {
-            console.log('=== Timeline API Error ===');
             if (axios.isAxiosError(err)) {
-                console.log('Error URL:', err.config?.url);
-                console.log('Error Method:', err.config?.method);
-                console.log('Error Headers:', err.config?.headers);
-                console.log('Error Status:', err.response?.status);
-                console.log('Error Status Text:', err.response?.statusText);
-                console.log('Error Data:', err.response?.data);
-                console.log('Error Headers:', err.response?.headers);
-
                 if (err.response?.status === 401) {
-                    // Handle unauthorized - redirect to login
+                    setError('Session expired. Please log in again.');
                     window.location.href = '/auth/login';
                     return;
                 } else if (err.response?.status === 404) {
-                    // Handle 404 specifically
                     setError('Timeline endpoint not found. Please check your session.');
                     return;
                 }
+                console.error('Timeline error details:', {
+                    status: err.response?.status,
+                    statusText: err.response?.statusText,
+                    data: err.response?.data,
+                    headers: err.response?.headers
+                });
             }
-            setError('Failed to fetch timeline');
+            setError('Failed to fetch timeline. Please try again.');
         } finally {
             setLoading(false);
         }

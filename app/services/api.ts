@@ -3,22 +3,32 @@ import { TimelineResponse } from '../types/timeline';
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-    withCredentials: true // Required for cookies
+    baseURL: 'https://wholesome-creation-production.up.railway.app',
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
 });
 
 // Timeline API service
 export const timelineApi = {
     getTimeline: async (nextToken?: string): Promise<TimelineResponse> => {
-        const params = new URLSearchParams();
-        if (nextToken) {
-            params.append('next_token', nextToken);
-        }
+        try {
+            // Log the exact URL being hit
+            console.log('Making request to:', 'https://wholesome-creation-production.up.railway.app/api/timeline');
 
-        // Note: This endpoint is rate limited to 100 requests per 15 minutes
-        const response = await api.get<TimelineResponse>(
-            `/api/timeline?${params.toString()}`
-        );
-        return response.data;
+            const response = await api.get('/api/timeline', {
+                params: nextToken ? { next_token: nextToken } : undefined,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            return response.data;
+        } catch (error) {
+            console.error('Timeline request failed:', error);
+            throw error;
+        }
     }
 }; 
