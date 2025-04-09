@@ -5,8 +5,10 @@ export async function POST(request: Request) {
         const formData = await request.formData()
         const code = formData.get("code")
         const codeVerifier = formData.get("code_verifier")
+        const refreshToken = formData.get("refresh_token")
+        const grantType = refreshToken ? "refresh_token" : "authorization_code"
 
-        if (!code || !codeVerifier) {
+        if (!refreshToken && (!code || !codeVerifier)) {
             console.error("Missing parameters:", { code: !!code, codeVerifier: !!codeVerifier })
             return NextResponse.json({ error: "Missing parameters" }, { status: 400 })
         }
@@ -17,11 +19,15 @@ export async function POST(request: Request) {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
             body: new URLSearchParams({
-                code: code.toString(),
-                grant_type: "authorization_code",
+                grant_type: grantType,
                 client_id: process.env.TWITTER_CLIENT_ID!,
                 redirect_uri: process.env.TWITTER_REDIRECT_URI!,
-                code_verifier: codeVerifier.toString(),
+                ...(refreshToken 
+                    ? { refresh_token: refreshToken.toString() }
+                    : { 
+                        code: code!.toString(),
+                        code_verifier: codeVerifier!.toString()
+                    })
             }),
         })
 
@@ -37,8 +43,32 @@ export async function POST(request: Request) {
             }, { status: tokenResponse.status })
         }
 
-        const { access_token } = await tokenResponse.json()
-        return NextResponse.json({ access_token })
+        const tokenData = await tokenResponse.json()
+        const response = NextResponse.json(tokenData)
+
+        // Set cookies for both access and refresh tokens
+        response.cookies.set({
+            name: "twitter_access_token",
+            value: tokenData.access_token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: tokenData.expires_in
+        })
+
+        if (tokenData.refresh_token) {
+            response.cookies.set({
+                name: "twitter_refresh_token",
+                value: tokenData.refresh_token,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+                path: "/"
+            })
+        }
+
+        return response
     } catch (error) {
         console.error("Token exchange error:", error)
         return NextResponse.json({ 

@@ -23,6 +23,40 @@ const api = axios.create({
     },
 });
 
+// Add request interceptor to check token expiration
+api.interceptors.request.use(async (config) => {
+    // Skip token refresh for auth endpoints
+    if (config.url?.includes('/auth/')) {
+        return config;
+    }
+
+    try {
+        // Check if token is expired or about to expire (within 5 minutes)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/me`, {
+            credentials: 'include'
+        });
+
+        if (response.status === 401) {
+            // Token is expired, try to refresh
+            const refreshResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/refresh`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!refreshResponse.ok) {
+                // Refresh failed, redirect to login
+                window.location.href = '/';
+                return Promise.reject(new Error('Token refresh failed'));
+            }
+        }
+    } catch (error) {
+        console.error('Token check failed:', error);
+        return Promise.reject(error);
+    }
+
+    return config;
+});
+
 // Add response interceptor for error handling
 api.interceptors.response.use(
     (response) => response,
