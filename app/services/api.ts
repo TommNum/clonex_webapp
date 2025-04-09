@@ -2,7 +2,7 @@ import axios from 'axios';
 import { TimelineResponse } from '../types/timeline';
 
 const api = axios.create({
-    baseURL: 'wholesome-creation.railway.internal',
+    baseURL: 'http://wholesome-creation.railway.internal',
     withCredentials: true, // Required for cookies
     // Force IPv6 resolution
     httpAgent: new (require('http').Agent)({ family: 6 }),
