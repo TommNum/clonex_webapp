@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
-// Use environment variable for backend URL
-const BACKEND_URL = process.env.BACKEND_URL || 'https://wholesome-creation-production.up.railway.app';
+const BACKEND_URL = 'https://wholesome-creation-production.up.railway.app';
 
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const nextToken = searchParams.get('next_token');
+
+        // Get cookies from the incoming request
+        const cookies = request.headers.get('cookie');
 
         const url = `${BACKEND_URL}/api/timeline`;
         console.log('=== Timeline API Request ===');
@@ -16,10 +18,15 @@ export async function GET(request: Request) {
         console.log('Request URL:', request.url);
         console.log('Full Backend URL:', url);
         console.log('Query params:', { nextToken });
+        console.log('Cookies:', cookies);
 
         const response = await axios.get(url, {
             params: { next_token: nextToken },
-            withCredentials: true
+            withCredentials: true,
+            headers: {
+                Cookie: cookies || '',
+                'Content-Type': 'application/json'
+            }
         });
 
         console.log('=== Timeline API Response ===');
