@@ -1,0 +1,24 @@
+{
+  "rules": [
+    {
+      "description": "Implement OAuth 2.0 PKCE Flow with Token Refresh",
+      "triggers": [
+        "oauth implementation",
+        "need to authenticate with X API",
+        "twitter auth",
+        "token refresh issue",
+        "implement PKCE"
+      ],
+      "actions": [
+        {
+          "type": "GENERATE_CODE",
+          "options": {
+            "language": "javascript",
+            "filename": "oauth2-pkce-flow.js",
+            "template": "// OAuth 2.0 PKCE implementation for X API v2\n\n// 1. PKCE Challenge & Verifier Generation\nfunction generateRandomString(length) {\n  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';\n  let text = '';\n  for (let i = 0; i < length; i++) {\n    text += possible.charAt(Math.floor(Math.random() * possible.length));\n  }\n  return text;\n}\n\nasync function generateCodeChallenge(codeVerifier) {\n  const encoder = new TextEncoder();\n  const data = encoder.encode(codeVerifier);\n  const digest = await window.crypto.subtle.digest('SHA-256', data);\n  const base64Digest = btoa(String.fromCharCode(...new Uint8Array(digest)));\n  return base64Digest\n    .replace(/\\+/g, '-')\n    .replace(/\\//g, '_')\n    .replace(/=/g, '');\n}\n\n// 2. Initialize Auth Flow\nasync function initAuth(clientId, redirectUri, scopes = []) {\n  // Always include offline.access for refresh token\n  if (!scopes.includes('offline.access')) {\n    scopes.push('offline.access');\n  }\n  \n  const codeVerifier = generateRandomString(64);\n  const codeChallenge = await generateCodeChallenge(codeVerifier);\n  const state = generateRandomString(32);\n  \n  // Store PKCE and state params\n  localStorage.setItem('oauth_state', state);\n  localStorage.setItem('code_verifier', codeVerifier);\n  \n  const params = new URLSearchParams({\n    response_type: 'code',\n    client_id: clientId,\n    redirect_uri: redirectUri,\n    scope: scopes.join(' '),\n    state: state,\n    code_challenge: codeChallenge,\n    code_challenge_method: 'S256'\n  });\n  \n  return `https://x.com/i/oauth2/authorize?${params.toString()}`;\n}\n\n// Export the OAuth functionality\nexport {\n  initAuth,\n  generateRandomString,\n  generateCodeChallenge\n};"
+          }
+        }
+      ]
+    }
+  ]
+} 

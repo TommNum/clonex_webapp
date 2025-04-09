@@ -115,42 +115,41 @@ export default function PricingSection() {
     <section
       id="pricing-section"
       className="min-h-screen bg-gradient-to-b from-gray-900 to-black relative overflow-y-auto"
-      style={{ touchAction: "auto", overscrollBehavior: "auto" }}
     >
-      {/* Background decorative elements - Fixed for mobile rendering */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
-        {/* Use div elements with background colors instead of relying on filter/blur that might not render on mobile */}
+      {/* Background decorative elements */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden opacity-30 pointer-events-none">
+        {/* Gradient orbs with fixed positions */}
         <div
-          className="absolute top-10 left-10 w-64 h-64 rounded-full bg-blue-500/20"
+          className="fixed top-10 left-10 w-64 h-64 rounded-full bg-blue-500/20"
           style={{
             transform: `translateY(${scrollY * 0.1}px)`,
             boxShadow: "0 0 80px 30px rgba(59, 130, 246, 0.2)",
           }}
-        ></div>
+        />
         <div
-          className="absolute top-40 right-20 w-80 h-80 rounded-full bg-purple-500/20"
+          className="fixed top-40 right-20 w-80 h-80 rounded-full bg-purple-500/20"
           style={{
             transform: `translateY(${scrollY * 0.15}px)`,
             boxShadow: "0 0 80px 30px rgba(168, 85, 247, 0.2)",
           }}
-        ></div>
+        />
         <div
-          className="absolute bottom-20 left-40 w-72 h-72 rounded-full bg-pink-500/20"
+          className="fixed bottom-20 left-40 w-72 h-72 rounded-full bg-pink-500/20"
           style={{
             transform: `translateY(${scrollY * -0.1}px)`,
             boxShadow: "0 0 80px 30px rgba(236, 72, 153, 0.2)",
           }}
-        ></div>
+        />
         <div
-          className="absolute bottom-40 right-10 w-96 h-96 rounded-full bg-cyan-500/20"
+          className="fixed bottom-40 right-10 w-96 h-96 rounded-full bg-cyan-500/20"
           style={{
             transform: `translateY(${scrollY * -0.05}px)`,
             boxShadow: "0 0 80px 30px rgba(6, 182, 212, 0.2)",
           }}
-        ></div>
+        />
       </div>
 
-      <div className="container max-w-6xl px-4 py-16 md:py-20 mx-auto relative z-10">
+      <div className="container max-w-7xl px-4 py-16 md:py-20 mx-auto relative z-10">
         <div className="text-center mb-8 md:mb-14">
           <div className="flex items-center justify-center mb-2">
             <h1 className="text-3xl md:text-5xl font-bold font-syncopate">
@@ -164,32 +163,52 @@ export default function PricingSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 auto-rows-fr mb-8">
           {pricingTiers.map((tier) => (
             <PricingCard key={tier.title} {...tier} className="w-full" />
           ))}
         </div>
 
-        <div className="mt-8 md:mt-14 text-center">
+        <div className="mt-8 md:mt-14 text-center pb-8">
           <div className="flex flex-wrap gap-4 justify-center items-center">
             <motion.button
-              className="px-4 md:px-6 py-2 md:py-3 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm md:text-base font-medium hover:shadow-lg hover:shadow-purple-500/20 transition-all"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Start Your Free Trial
-            </motion.button>
-            <motion.button
-              className="px-4 md:px-6 py-2 md:py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white text-sm md:text-base font-medium hover:bg-white/20 transition-all"
+              className="relative px-6 sm:px-10 md:px-14 py-3 sm:py-4 md:py-5 rounded-full bg-gradient-to-b from-white/40 to-white/10 backdrop-blur-md border border-white/30 shadow-lg overflow-hidden group hover:scale-105 active:scale-95 transition-transform"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               style={{
-                background: "rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
+                filter: "brightness(1.05) contrast(1.02)",
               }}
             >
-              Contact Sales
+              {/* Inner glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+              {/* Button text */}
+              <span className="relative font-syncopate font-bold text-xl sm:text-2xl md:text-3xl tracking-wider text-white z-10 flex items-center justify-center">
+                Start Your Free Trial
+              </span>
+
+              {/* Shine effect */}
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shine_1.5s_ease-in-out_infinite]" />
+            </motion.button>
+
+            <motion.button
+              className="relative px-6 sm:px-10 md:px-14 py-3 sm:py-4 md:py-5 rounded-full bg-gradient-to-b from-white/40 to-white/10 backdrop-blur-md border border-white/30 shadow-lg overflow-hidden group hover:scale-105 active:scale-95 transition-transform"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              style={{
+                filter: "brightness(1.05) contrast(1.02)",
+              }}
+            >
+              {/* Inner glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+              {/* Button text */}
+              <span className="relative font-syncopate font-bold text-xl sm:text-2xl md:text-3xl tracking-wider text-white z-10 flex items-center justify-center">
+                Contact Sales
+              </span>
+
+              {/* Shine effect */}
+              <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shine_1.5s_ease-in-out_infinite]" />
             </motion.button>
           </div>
         </div>

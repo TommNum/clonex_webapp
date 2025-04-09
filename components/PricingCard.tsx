@@ -28,12 +28,12 @@ export default function PricingCard({ title, price, description, features, tier,
 
   // Define button styles based on tier
   const buttonStyles: Record<PricingTier, string> = {
-    free: "bg-blue-600 hover:bg-blue-700",
-    basic: "bg-green-600 hover:bg-green-700",
-    premium: "bg-purple-600 hover:bg-purple-700",
-    pro: "bg-pink-600 hover:bg-pink-700",
-    founder: "bg-amber-600 hover:bg-amber-700",
-    agentic: "bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600",
+    free: "bg-blue-600/20 hover:bg-blue-600/30",
+    basic: "bg-green-600/20 hover:bg-green-600/30",
+    premium: "bg-purple-600/20 hover:bg-purple-600/30",
+    pro: "bg-pink-600/20 hover:bg-pink-600/30",
+    founder: "bg-amber-600/20 hover:bg-amber-600/30",
+    agentic: "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 hover:from-cyan-500/30 hover:to-blue-500/30",
   }
 
   // Define highlight colors based on tier
@@ -48,7 +48,7 @@ export default function PricingCard({ title, price, description, features, tier,
 
   return (
     <motion.div
-      className={cn("relative rounded-2xl overflow-hidden", className)}
+      className={cn("relative rounded-2xl overflow-hidden h-full flex flex-col", className)}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -64,7 +64,7 @@ export default function PricingCard({ title, price, description, features, tier,
       />
 
       {/* Content - Optimized for mobile rendering */}
-      <div className="relative p-5 md:p-6 z-10 flex flex-col">
+      <div className="relative p-5 md:p-6 z-10 flex flex-col flex-grow">
         {/* Header */}
         <div className="mb-4 md:mb-6">
           <h3 className={`text-lg md:text-xl font-bold font-syncopate mb-1 ${highlightColors[tier]}`}>{title}</h3>
@@ -79,12 +79,12 @@ export default function PricingCard({ title, price, description, features, tier,
 
         {/* Features - Optimized for mobile with explicit styling for icons */}
         <div className="flex-grow">
-          <ul className="space-y-2 md:space-y-3">
+          <ul className="space-y-2 md:space-y-3 mb-6">
             {features.map((feature, index) => (
               <li key={index} className="flex items-start">
                 <Check
                   className={`h-4 w-4 md:h-5 md:w-5 ${highlightColors[tier]} mr-2 mt-0.5 flex-shrink-0`}
-                  strokeWidth={2.5} // Increased stroke width for better visibility
+                  strokeWidth={2.5}
                 />
                 <span className="text-white/80 text-xs md:text-sm">{feature}</span>
               </li>
@@ -92,13 +92,27 @@ export default function PricingCard({ title, price, description, features, tier,
           </ul>
         </div>
 
-        {/* CTA Button */}
-        <div className="mt-4 md:mt-6">
-          <button
-            className={`w-full py-2 md:py-2.5 px-4 rounded-full text-white text-sm md:text-base font-medium transition-all ${buttonStyles[tier]}`}
+        {/* CTA Button with glass effect - Now at the bottom */}
+        <div className="mt-auto">
+          <motion.button
+            className="relative w-full py-2.5 px-4 rounded-full bg-gradient-to-b from-white/40 to-white/10 backdrop-blur-md border border-white/30 shadow-lg overflow-hidden group hover:scale-105 active:scale-95 transition-transform"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            style={{
+              filter: "brightness(1.05) contrast(1.02)",
+            }}
           >
-            {tier === "free" ? "Get Started" : tier === "agentic" ? "Contact Us" : "Subscribe"}
-          </button>
+            {/* Inner glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/20 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+            {/* Button text */}
+            <span className="relative font-syncopate font-bold text-sm md:text-base tracking-wider text-white z-10 flex items-center justify-center">
+              {tier === "free" ? "Get Started" : tier === "agentic" ? "Contact Us" : "Subscribe"}
+            </span>
+
+            {/* Shine effect */}
+            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shine_1.5s_ease-in-out_infinite]" />
+          </motion.button>
         </div>
       </div>
     </motion.div>

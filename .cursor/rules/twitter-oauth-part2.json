@@ -1,0 +1,23 @@
+{
+  "rules": [
+    {
+      "description": "Generate Token Refresh Implementation",
+      "triggers": [
+        "token refresh not working",
+        "how to refresh tokens",
+        "refresh token implementation",
+        "token expiring"
+      ],
+      "actions": [
+        {
+          "type": "GENERATE_CODE",
+          "options": {
+            "language": "javascript",
+            "filename": "token-refresh.js",
+            "template": "// Token Refresh Implementation for X API v2\n\nclass TokenManager {\n  constructor(clientId) {\n    this.clientId = clientId;\n    this.tokenStorageKey = 'x_api_tokens';\n    this.refreshInProgress = false;\n    this.refreshPromise = null;\n  }\n\n  async getValidAccessToken() {\n    if (this.refreshInProgress) {\n      return this.refreshPromise.then(() => this.getAccessTokenFromStorage());\n    }\n\n    const tokenInfo = this.getStoredTokens();\n\n    if (!tokenInfo) {\n      throw new Error('No authentication tokens found');\n    }\n\n    if (!this.isTokenExpired(tokenInfo)) {\n      return tokenInfo.access_token;\n    }\n\n    if (tokenInfo.refresh_token) {\n      try {\n        this.refreshInProgress = true;\n        this.refreshPromise = this.refreshToken(tokenInfo.refresh_token);\n        const updatedTokenInfo = await this.refreshPromise;\n        return updatedTokenInfo.access_token;\n      } catch (error) {\n        this.clearTokens();\n        throw new Error('Authentication expired. Please log in again.');\n      } finally {\n        this.refreshInProgress = false;\n        this.refreshPromise = null;\n      }\n    } else {\n      this.clearTokens();\n      throw new Error('No refresh token available. Re-authentication required.');\n    }\n  }\n\n  async makeAuthenticatedRequest(url, options = {}) {\n    const accessToken = await this.getValidAccessToken();\n    const headers = {\n      'Authorization': `Bearer ${accessToken}`,\n      ...options.headers\n    };\n    \n    const response = await fetch(url, {\n      ...options,\n      headers\n    });\n    \n    if (!response.ok) {\n      if (response.status === 401) {\n        this.clearTokens();\n        throw new Error('Authentication invalid. Please log in again.');\n      }\n      throw new Error(`API request failed: ${response.status}`);\n    }\n    \n    return response;\n  }\n}\n\nexport default TokenManager;"
+          }
+        }
+      ]
+    }
+  ]
+} 
