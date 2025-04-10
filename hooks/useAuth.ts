@@ -20,9 +20,9 @@ export function useAuth() {
         try {
             setLoading(true)
 
-            // Call our backend to exchange the code for tokens
+            // Call our backend to exchange the code for tokens via proxy
             const response = await axios.get<AuthResponse>(
-                `${process.env.NEXT_PUBLIC_API_URL}/auth/callback`,
+                `/api/proxy/auth/callback`,
                 {
                     params: { code, state },
                     withCredentials: true // Important for cookies
@@ -43,9 +43,9 @@ export function useAuth() {
         try {
             setLoading(true)
 
-            // Get the auth URL from our backend
+            // Get the auth URL from our backend via proxy
             const response = await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/auth/initiate`,
+                `/api/proxy/auth/initiate`,
                 {},
                 { withCredentials: true }
             )
@@ -63,7 +63,7 @@ export function useAuth() {
     const logout = useCallback(async () => {
         try {
             await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+                `/api/proxy/auth/logout`,
                 {},
                 { withCredentials: true }
             )

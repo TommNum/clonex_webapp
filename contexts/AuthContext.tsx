@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Check for token in cookies on mount
         const checkAuth = async () => {
             try {
-                const response = await fetch('/api/auth/me', {
+                const response = await fetch('/api/proxy/api/auth/me', {
                     credentials: 'include'
                 })
                 if (response.ok) {
@@ -90,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         try {
-            await fetch('/api/auth/logout', {
+            await fetch('/api/proxy/api/auth/logout', {
                 method: 'POST',
                 credentials: 'include'
             })

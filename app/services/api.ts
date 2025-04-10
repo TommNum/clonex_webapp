@@ -3,7 +3,8 @@ import { TimelineResponse } from '../types/timeline';
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: 'https://wholesome-creation-production.up.railway.app',
+    // Use our local API proxy instead of calling Railway directly
+    baseURL: '/api/proxy',
     withCredentials: true, // Important for cross-domain cookies/authentication
     headers: {
         'Content-Type': 'application/json',
@@ -15,8 +16,8 @@ const api = axios.create({
 export const timelineApi = {
     getTimeline: async (nextToken?: string): Promise<TimelineResponse> => {
         try {
-            // Log the exact URL being hit
-            console.log('Making request to:', 'https://wholesome-creation-production.up.railway.app/api/timeline');
+            // Log the exact URL being hit - now using our proxy
+            console.log('Making request to proxy:', '/api/proxy/api/timeline');
 
             const response = await api.get('/api/timeline', {
                 params: nextToken ? { next_token: nextToken } : undefined,
