@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TimelineResponse } from '../types/timeline';
 
-// Server-side instance (used in Route Handlers or Server Components)
+// Server-side instance for internal backend calls
 export const serverApi = axios.create({
     baseURL: process.env.BACKEND_INTERNAL_URL || 'http://wholesome-creation.railway.internal:3001',
     headers: {

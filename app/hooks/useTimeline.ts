@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
 import { TimelinePost, TimelineResponse } from '../types/timeline';
-import { timelineApi } from '../services/api';
 
 export const useTimeline = () => {
     const [posts, setPosts] = useState<TimelinePost[]>([]);
@@ -16,16 +15,33 @@ export const useTimeline = () => {
             console.log('Refresh:', refresh);
             console.log('Next token:', nextToken);
 
-            const response = await timelineApi.getTimeline(nextToken || undefined);
-
-            if (refresh) {
-                setPosts(response.data);
-            } else {
-                setPosts(prev => [...prev, ...response.data]);
+            const url = new URL('/api/timeline', window.location.origin);
+            if (nextToken && !refresh) {
+                url.searchParams.set('nextToken', nextToken);
             }
 
-            setNextToken(response.meta?.next_token || null);
-            setHasMore(!!response.meta?.next_token);
+            const response = await fetch(url.toString(), {
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Timeline response:', data);
+
+            if (refresh) {
+                setPosts(data.data);
+            } else {
+                setPosts(prev => [...prev, ...data.data]);
+            }
+
+            setNextToken(data.meta?.next_token || null);
+            setHasMore(!!data.meta?.next_token);
             setError(null);
         } catch (error) {
             console.error('Timeline error:', error);
