@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { TimelinePost, TimelineResponse } from '../types/timeline';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useTimeline = () => {
     const [posts, setPosts] = useState<TimelinePost[]>([]);
@@ -7,6 +8,7 @@ export const useTimeline = () => {
     const [error, setError] = useState<string | null>(null);
     const [nextToken, setNextToken] = useState<string | null>(null);
     const [hasMore, setHasMore] = useState(true);
+    const { user } = useAuth();
 
     const fetchTimeline = useCallback(async (refresh = false) => {
         try {
