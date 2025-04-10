@@ -54,4 +54,17 @@ export const timelineApi = {
             throw error;
         }
     }
-}; 
+};
+
+// Test function to verify basic routing
+export async function testBackendConnection() {
+    try {
+        console.log('Testing backend connection...');
+        const response = await serverApi.get('/test');
+        console.log('Backend test response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Backend test failed:', error);
+        throw error;
+    }
+} 
