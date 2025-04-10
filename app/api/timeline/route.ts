@@ -11,7 +11,12 @@ export async function GET(request: Request) {
     const cookieStore = await cookies();
     const session = cookieStore.get('session');
 
+    console.log('=== Session Debug ===');
+    console.log('All cookies:', cookieStore.getAll());
+    console.log('Session cookie:', session);
+
     if (!session) {
+        console.log('No session cookie found');
         return NextResponse.json(
             { error: 'No session found' },
             { status: 401 }
@@ -19,13 +24,16 @@ export async function GET(request: Request) {
     }
 
     try {
-        // Parse session data to get Twitter ID and token
-        const sessionData = JSON.parse(session.value);
-        const { twitterId, twitterToken } = sessionData;
+        // Get Twitter credentials from cookies
+        const twitterId = cookieStore.get('twitter_id')?.value;
+        const twitterToken = cookieStore.get('twitter_access_token')?.value;
+
+        console.log('Twitter credentials:', { twitterId, twitterToken });
 
         if (!twitterId || !twitterToken) {
+            console.log('Missing Twitter credentials:', { twitterId, twitterToken });
             return NextResponse.json(
-                { error: 'Twitter credentials not found in session' },
+                { error: 'Twitter credentials not found' },
                 { status: 401 }
             );
         }
