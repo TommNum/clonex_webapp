@@ -22,9 +22,9 @@ export async function POST(request: Request) {
                 grant_type: grantType,
                 client_id: process.env.TWITTER_CLIENT_ID!,
                 redirect_uri: process.env.TWITTER_REDIRECT_URI!,
-                ...(refreshToken 
+                ...(refreshToken
                     ? { refresh_token: refreshToken.toString() }
-                    : { 
+                    : {
                         code: code!.toString(),
                         code_verifier: codeVerifier!.toString()
                     })
@@ -38,13 +38,51 @@ export async function POST(request: Request) {
                 statusText: tokenResponse.statusText,
                 error: errorData
             })
-            return NextResponse.json({ 
-                error: errorData.error_description || "Token exchange failed" 
+            return NextResponse.json({
+                error: errorData.error_description || "Token exchange failed"
             }, { status: tokenResponse.status })
         }
 
         const tokenData = await tokenResponse.json()
-        const response = NextResponse.json(tokenData)
+
+        // Fetch user data
+        const userResponse = await fetch("https://api.twitter.com/2/users/me", {
+            headers: {
+                Authorization: `Bearer ${tokenData.access_token}`,
+            },
+        })
+
+        if (!userResponse.ok) {
+            console.error("Failed to fetch user data:", {
+                status: userResponse.status,
+                statusText: userResponse.statusText
+            })
+            return NextResponse.json({ error: "Failed to fetch user data" }, { status: 500 })
+        }
+
+        const userData = await userResponse.json()
+        const response = NextResponse.json({
+            ...userData,
+            twitterId: userData.data.id,
+            twitterToken: tokenData.access_token,
+            twitterRefreshToken: tokenData.refresh_token
+        })
+
+        // Set session cookie
+        response.cookies.set({
+            name: "session",
+            value: JSON.stringify({
+                id: userData.data.id,
+                username: userData.data.username,
+                twitterId: userData.data.id,
+                twitterToken: tokenData.access_token,
+                twitterRefreshToken: tokenData.refresh_token
+            }),
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/"
+        })
 
         // Set cookies for both access and refresh tokens
         response.cookies.set({
@@ -68,11 +106,21 @@ export async function POST(request: Request) {
             })
         }
 
+        // Set twitter_id cookie
+        response.cookies.set({
+            name: "twitter_id",
+            value: userData.data.id,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/"
+        })
+
         return response
     } catch (error) {
         console.error("Token exchange error:", error)
-        return NextResponse.json({ 
-            error: error instanceof Error ? error.message : "Server error" 
+        return NextResponse.json({
+            error: error instanceof Error ? error.message : "Server error"
         }, { status: 500 })
     }
 } 
