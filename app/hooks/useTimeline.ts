@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { TimelinePost, TimelineResponse } from '../types/timeline';
 import { timelineApi } from '../services/api';
 
@@ -35,12 +35,31 @@ export const useTimeline = () => {
         }
     }, [nextToken]);
 
+    const refresh = useCallback(() => {
+        setNextToken(null);
+        setLoading(true);
+        fetchTimeline(true);
+    }, [fetchTimeline]);
+
+    const loadMore = useCallback(() => {
+        if (nextToken && !loading) {
+            setLoading(true);
+            fetchTimeline(false);
+        }
+    }, [nextToken, loading, fetchTimeline]);
+
+    // Initial fetch
+    useEffect(() => {
+        fetchTimeline(true);
+    }, [fetchTimeline]);
+
     return {
         posts,
         loading,
         error,
         hasMore,
-        fetchTimeline,
+        refresh,
+        loadMore,
         setError
     };
 }; 
