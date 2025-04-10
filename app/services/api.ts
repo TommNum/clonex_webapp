@@ -5,12 +5,12 @@ if (!process.env.BACKEND_INTERNAL_URL) {
     console.error('BACKEND_INTERNAL_URL is not set');
 }
 
-// Server-side instance for internal backend calls
+// Create a server-side instance
 export const serverApi = axios.create({
     baseURL: process.env.BACKEND_INTERNAL_URL || 'http://wholesome-creation.railway.internal:3001',
     headers: {
-        'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Content-Type': 'application/json'
     }
 });
 
@@ -21,14 +21,16 @@ serverApi.interceptors.request.use((config) => {
     return config;
 });
 
-// Add response interceptor to log responses
+// Add response interceptor for error handling
 serverApi.interceptors.response.use(
-    (response) => {
-        console.log('Received response:', response.status);
-        return response;
-    },
-    (error) => {
-        console.error('Request failed:', error.message);
+    response => response,
+    error => {
+        console.error('Request failed:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            data: error.response?.data
+        });
         return Promise.reject(error);
     }
 );

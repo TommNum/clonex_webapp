@@ -34,8 +34,8 @@ export async function GET(request: Request) {
     try {
         console.log('=== Timeline API Request ===');
         console.log('Next token:', nextToken);
-        console.log('Backend URL:', process.env.BACKEND_URL);
-        console.log('Full request URL:', `${process.env.BACKEND_URL}/api/timeline`);
+        console.log('Backend URL:', process.env.BACKEND_INTERNAL_URL);
+        console.log('Full request URL:', `${process.env.BACKEND_INTERNAL_URL}/api/timeline`);
 
         const response = await serverApi.get('/api/timeline', {
             params: nextToken ? { next_token: nextToken } : undefined,
