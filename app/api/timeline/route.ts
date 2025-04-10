@@ -35,13 +35,17 @@ export async function GET(request: Request) {
         console.log('=== Timeline API Request ===');
         console.log('Next token:', nextToken);
         console.log('Backend URL:', process.env.BACKEND_INTERNAL_URL);
-        console.log('Full request URL:', `${process.env.BACKEND_INTERNAL_URL}/api/timeline`);
+        console.log('Full request URL:', `${process.env.BACKEND_INTERNAL_URL}/api/timeline?user_id=${twitterId}`);
 
         const response = await serverApi.get('/api/timeline', {
-            params: nextToken ? { next_token: nextToken } : undefined,
+            params: {
+                user_id: twitterId,
+                ...(nextToken ? { next_token: nextToken } : {})
+            },
             headers: {
                 'Accept': 'application/json',
-                'Authorization': `Bearer ${twitterToken}`
+                'Authorization': `Bearer ${twitterToken}`,
+                'X-Twitter-User-Id': twitterId
             }
         });
 
