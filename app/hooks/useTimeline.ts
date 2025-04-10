@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { TimelinePost, TimelineResponse } from '../types/timeline';
-import { timelineApi } from '../services/timelineApi';
+import { timelineApi } from '../services/api';
 
 export const useTimeline = () => {
     const [posts, setPosts] = useState<TimelinePost[]>([]);
@@ -20,13 +20,13 @@ export const useTimeline = () => {
             const response = await timelineApi.getTimeline(nextToken || undefined);
 
             if (refresh) {
-                setPosts(response.posts);
+                setPosts(response.data);
             } else {
-                setPosts(prev => [...prev, ...response.posts]);
+                setPosts(prev => [...prev, ...response.data]);
             }
 
-            setNextToken(response.nextToken || null);
-            setHasMore(!!response.nextToken);
+            setNextToken(response.meta?.next_token || null);
+            setHasMore(!!response.meta?.next_token);
             setError(null);
         } catch (error) {
             console.error('Timeline error:', error);
