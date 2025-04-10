@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { TimelinePost, TimelineResponse } from '../types/timeline';
 import { useAuth } from '@/contexts/AuthContext';
+import { User } from '../types/user';
 
 export const useTimeline = () => {
     const [posts, setPosts] = useState<TimelinePost[]>([]);
@@ -16,6 +17,11 @@ export const useTimeline = () => {
             console.log('Environment:', process.env.NODE_ENV);
             console.log('Refresh:', refresh);
             console.log('Next token:', nextToken);
+            console.log('User:', user);
+
+            if (!user?.twitterId || !user?.twitterToken) {
+                throw new Error('Twitter credentials not found');
+            }
 
             const url = new URL('/api/timeline', window.location.origin);
             if (nextToken && !refresh) {
@@ -25,7 +31,8 @@ export const useTimeline = () => {
             const response = await fetch(url.toString(), {
                 credentials: 'include',
                 headers: {
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${user.twitterToken}`
                 }
             });
 
@@ -51,7 +58,7 @@ export const useTimeline = () => {
         } finally {
             setLoading(false);
         }
-    }, [nextToken]);
+    }, [nextToken, user]);
 
     const refresh = useCallback(() => {
         setNextToken(null);
@@ -68,8 +75,10 @@ export const useTimeline = () => {
 
     // Initial fetch
     useEffect(() => {
-        fetchTimeline(true);
-    }, [fetchTimeline]);
+        if (user?.twitterId && user?.twitterToken) {
+            fetchTimeline(true);
+        }
+    }, [fetchTimeline, user]);
 
     return {
         posts,

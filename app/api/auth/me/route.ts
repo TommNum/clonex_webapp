@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server"
+import { cookies } from "next/headers"
 
 export async function GET(request: Request) {
-    const cookie = request.headers.get("cookie")
-    const accessToken = cookie?.split(";").find((c: string) => c.trim().startsWith("twitter_access_token="))?.split("=")[1]
+    const cookieStore = await cookies()
+    const accessToken = cookieStore.get('twitter_access_token')?.value
+    const refreshToken = cookieStore.get('twitter_refresh_token')?.value
+    const twitterId = cookieStore.get('twitter_id')?.value
 
-    if (!accessToken) {
+    if (!accessToken || !refreshToken || !twitterId) {
         return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
@@ -20,7 +23,12 @@ export async function GET(request: Request) {
         }
 
         const data = await response.json()
-        return NextResponse.json(data)
+        return NextResponse.json({
+            ...data,
+            twitterId,
+            twitterToken: accessToken,
+            twitterRefreshToken: refreshToken
+        })
     } catch (error) {
         console.error("Error fetching user data:", error)
         return NextResponse.json({ error: "Failed to fetch user data" }, { status: 500 })

@@ -7,38 +7,32 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const nextToken = searchParams.get('nextToken') || undefined;
 
-    // Get session cookie
+    // Get all cookies
     const cookieStore = await cookies();
-    const session = cookieStore.get('session');
+    const allCookies = cookieStore.getAll();
 
-    console.log('=== Session Debug ===');
-    console.log('All cookies:', cookieStore.getAll());
-    console.log('Session cookie:', session);
+    console.log('=== Timeline API Debug ===');
+    console.log('All cookies:', allCookies);
 
-    if (!session) {
-        console.log('No session cookie found');
+    // Get Twitter credentials directly from cookies
+    const twitterId = cookieStore.get('twitter_id')?.value;
+    const twitterToken = cookieStore.get('twitter_access_token')?.value;
+
+    console.log('Twitter credentials:', {
+        twitterId: twitterId ? 'present' : 'missing',
+        twitterToken: twitterToken ? 'present' : 'missing'
+    });
+
+    if (!twitterId || !twitterToken) {
+        console.log('Missing Twitter credentials:', { twitterId, twitterToken });
         return NextResponse.json(
-            { error: 'No session found' },
+            { error: 'Twitter credentials not found' },
             { status: 401 }
         );
     }
 
     try {
-        // Get Twitter credentials from cookies
-        const twitterId = cookieStore.get('twitter_id')?.value;
-        const twitterToken = cookieStore.get('twitter_access_token')?.value;
-
-        console.log('Twitter credentials:', { twitterId, twitterToken });
-
-        if (!twitterId || !twitterToken) {
-            console.log('Missing Twitter credentials:', { twitterId, twitterToken });
-            return NextResponse.json(
-                { error: 'Twitter credentials not found' },
-                { status: 401 }
-            );
-        }
-
-        console.log('=== Timeline API Route ===');
+        console.log('=== Timeline API Request ===');
         console.log('Next token:', nextToken);
         console.log('Backend URL:', process.env.BACKEND_INTERNAL_URL);
         console.log('Full request URL:', `${process.env.BACKEND_INTERNAL_URL}/twitter/user/${twitterId}/timeline`);
