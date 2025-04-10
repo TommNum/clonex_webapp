@@ -15,7 +15,6 @@ export const useTimeline = () => {
             console.log('Environment:', process.env.NODE_ENV);
             console.log('Refresh:', refresh);
             console.log('Next token:', nextToken);
-            console.log('Session cookie present:', document.cookie.includes('session='));
 
             const response = await timelineApi.getTimeline(nextToken || undefined);
 

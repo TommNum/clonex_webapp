@@ -6,104 +6,97 @@ import { useRouter } from "next/navigation"
 interface User {
     id: string
     username: string
-    profileImageUrl?: string
+    email: string
 }
 
 interface AuthContextType {
-    isAuthenticated: boolean
     user: User | null
-    setUser: (user: User | null) => void
-    login: () => void
-    logout: () => void
+    loading: boolean
+    error: string | null
+    login: (username: string, password: string) => Promise<void>
+    logout: () => Promise<void>
+    checkAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [user, setUser] = useState<User | null>(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
     const router = useRouter()
 
-    useEffect(() => {
-        // Check for token in cookies on mount
-        const checkAuth = async () => {
-            try {
-                const response = await fetch('/api/proxy/api/auth/me', {
-                    credentials: 'include'
-                })
-                if (response.ok) {
-                    const data = await response.json()
-                    setUser(data)
-                    setIsAuthenticated(true)
-                } else {
-                    setIsAuthenticated(false)
-                    setUser(null)
-                }
-            } catch (error) {
-                console.error('Auth check failed:', error)
-                setIsAuthenticated(false)
-                setUser(null)
-            }
-        }
-        checkAuth()
-    }, [])
-
-    const login = () => {
-        // Generate PKCE challenge
-        const generateRandomString = (length: number) => {
-            const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-            let text = ''
-            for (let i = 0; i < length; i++) {
-                text += possible.charAt(Math.floor(Math.random() * possible.length))
-            }
-            return text
-        }
-
-        const generateCodeChallenge = async (codeVerifier: string) => {
-            const encoder = new TextEncoder()
-            const data = encoder.encode(codeVerifier)
-            const digest = await window.crypto.subtle.digest('SHA-256', data)
-            return btoa(String.fromCharCode(...new Uint8Array(digest)))
-                .replace(/\+/g, '-')
-                .replace(/\//g, '_')
-                .replace(/=+$/, '')
-        }
-
-        const codeVerifier = generateRandomString(128)
-        localStorage.setItem('code_verifier', codeVerifier)
-        generateCodeChallenge(codeVerifier).then(codeChallenge => {
-            const state = generateRandomString(16)
-            const params = new URLSearchParams({
-                response_type: 'code',
-                client_id: process.env.NEXT_PUBLIC_TWITTER_CLIENT_ID!,
-                redirect_uri: process.env.NEXT_PUBLIC_TWITTER_REDIRECT_URI!,
-                scope: 'tweet.read users.read offline.access',
-                state,
-                code_challenge: codeChallenge,
-                code_challenge_method: 'S256',
+    const checkAuth = async () => {
+        try {
+            const response = await fetch('/api/auth/me', {
+                credentials: 'include',
             })
 
-            const authUrl = `https://twitter.com/i/oauth2/authorize?${params.toString()}`
-            window.location.href = authUrl
-        })
+            if (response.ok) {
+                const data = await response.json()
+                setUser(data)
+                setError(null)
+            } else {
+                setUser(null)
+            }
+        } catch (err) {
+            console.error('Auth check failed:', err)
+            setUser(null)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const login = async (username: string, password: string) => {
+        try {
+            setLoading(true)
+            setError(null)
+
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+                credentials: 'include',
+            })
+
+            if (!response.ok) {
+                throw new Error('Login failed')
+            }
+
+            await checkAuth()
+            router.push('/dashboard')
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Login failed')
+            throw err
+        } finally {
+            setLoading(false)
+        }
     }
 
     const logout = async () => {
         try {
-            await fetch('/api/proxy/api/auth/logout', {
+            setLoading(true)
+            await fetch('/api/auth/logout', {
                 method: 'POST',
-                credentials: 'include'
+                credentials: 'include',
             })
-            setIsAuthenticated(false)
             setUser(null)
-            router.push("/")
-        } catch (error) {
-            console.error('Logout failed:', error)
+            router.push('/login')
+        } catch (err) {
+            console.error('Logout failed:', err)
+        } finally {
+            setLoading(false)
         }
     }
 
+    useEffect(() => {
+        checkAuth()
+    }, [])
+
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, setUser, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, error, login, logout, checkAuth }}>
             {children}
         </AuthContext.Provider>
     )
