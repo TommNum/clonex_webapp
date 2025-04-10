@@ -4,7 +4,7 @@ import { TimelineResponse } from '../types/timeline';
 // Create axios instance with default config
 const api = axios.create({
     baseURL: 'https://wholesome-creation-production.up.railway.app',
-    withCredentials: true,
+    withCredentials: true, // Important for cross-domain cookies/authentication
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -20,6 +20,7 @@ export const timelineApi = {
 
             const response = await api.get('/api/timeline', {
                 params: nextToken ? { next_token: nextToken } : undefined,
+                withCredentials: true, // Ensure credentials are included
                 headers: {
                     'Accept': 'application/json'
                 }
