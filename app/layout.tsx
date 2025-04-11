@@ -20,8 +20,8 @@ const cormorantGaramond = Cormorant_Garamond({
 })
 
 export const metadata: Metadata = {
-  title: "CloneX",
-  description: "Twitter clone with advanced features",
+  title: "CLONEX",
+  description: "Your AI Clone",
 }
 
 export default function RootLayout({
