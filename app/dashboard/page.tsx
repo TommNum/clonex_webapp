@@ -56,9 +56,8 @@ export default function Dashboard() {
                             <h2 className="text-2xl font-semibold mb-4 font-cormorant">Welcome to your Dashboard</h2>
                             <p className="text-lg font-cormorant">You are now connected to X.</p>
                         </div>
-                        <Timeline />
 
-                        <div className="mt-6">
+                        <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm">
                             <button
                                 onClick={handleTestAnalysis}
                                 disabled={loading}
@@ -73,19 +72,21 @@ export default function Dashboard() {
                                     'Test Analysis Creation'
                                 )}
                             </button>
+
+                            {error && (
+                                <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                                    {error}
+                                </div>
+                            )}
+
+                            {success && (
+                                <div className="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+                                    Analysis created successfully! Check the console for details.
+                                </div>
+                            )}
                         </div>
 
-                        {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-                                {error}
-                            </div>
-                        )}
-
-                        {success && (
-                            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
-                                Analysis created successfully! Check the console for details.
-                            </div>
-                        )}
+                        <Timeline />
                     </div>
                 ) : (
                     <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm">
