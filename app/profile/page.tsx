@@ -1,13 +1,13 @@
 'use client';
 
-import { useUserPosts } from '../hooks/useUserPosts';
-import { Post } from '../components/Post';
-import { LoadingSpinner } from '../components/LoadingSpinner';
+import { useUserPosts } from '@/app/hooks/useUserPosts';
+import { Post } from '@/app/components/Post';
+import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 import { useCallback, useEffect, useRef } from 'react';
 
 export default function ProfilePage() {
-    const { posts, loading, error, hasMore, loadMore } = useUserPosts();
-    const observer = useRef<IntersectionObserver>();
+    const { posts, loading, error, hasMore, loadMore, refresh } = useUserPosts();
+    const observer = useRef<IntersectionObserver | null>(null);
 
     const lastPostElementRef = useCallback((node: HTMLDivElement | null) => {
         if (loading) return;
@@ -21,8 +21,8 @@ export default function ProfilePage() {
     }, [loading, hasMore, loadMore]);
 
     useEffect(() => {
-        loadMore();
-    }, [loadMore]);
+        refresh();
+    }, [refresh]);
 
     if (error) {
         return (
