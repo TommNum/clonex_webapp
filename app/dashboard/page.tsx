@@ -6,28 +6,22 @@ import { Timeline } from "../components/Timeline"
 import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 
 export default function Dashboard() {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
 
     const handleTestAnalysis = async () => {
-        if (!user) return;
-
         setLoading(true);
         setError(null);
         setSuccess(false);
 
         try {
-            const response = await fetch('http://wholesome-creation.railway.internal:3001/api/analysis/create', {
+            const response = await fetch('/api/analysis/create', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${user.twitterToken}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    user_id: user.twitterId
-                })
             });
 
             if (!response.ok) {
