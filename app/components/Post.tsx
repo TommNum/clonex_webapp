@@ -31,20 +31,6 @@ export function Post({ post }: PostProps) {
                             ))}
                         </div>
                     )}
-                    <div className="mt-3 flex items-center space-x-4 text-gray-500">
-                        <div className="flex items-center space-x-1">
-                            <span>{post.metrics.likes}</span>
-                            <span>Likes</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                            <span>{post.metrics.retweets}</span>
-                            <span>Retweets</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                            <span>{post.metrics.replies}</span>
-                            <span>Replies</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
