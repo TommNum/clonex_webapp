@@ -1,10 +1,5 @@
 import { useState, useCallback } from 'react';
-import { TimelinePost } from '../types/timeline';
-
-interface UserPostsResponse {
-    posts: TimelinePost[];
-    nextToken?: string;
-}
+import { TimelinePost, TimelineResponse } from '../types/timeline';
 
 export function useUserPosts() {
     const [posts, setPosts] = useState<TimelinePost[]>([]);
@@ -27,15 +22,15 @@ export function useUserPosts() {
                 throw new Error(`Failed to fetch posts: ${response.statusText}`);
             }
 
-            const data: UserPostsResponse = await response.json();
+            const data: TimelineResponse = await response.json();
 
             if (nextToken) {
-                setPosts(prev => [...prev, ...data.posts]);
+                setPosts(prev => [...prev, ...(data.data || [])]);
             } else {
-                setPosts(data.posts);
+                setPosts(data.data || []);
             }
 
-            setHasMore(!!data.nextToken);
+            setHasMore(!!data.meta?.next_token);
         } catch (err) {
             console.error('Error fetching posts:', err);
             setError(err instanceof Error ? err.message : 'Failed to fetch posts');
