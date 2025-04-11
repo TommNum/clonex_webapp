@@ -35,7 +35,10 @@ export async function GET(request: Request) {
         console.log('=== Timeline API Request ===');
         console.log('Next token:', nextToken);
         console.log('Backend URL:', process.env.BACKEND_INTERNAL_URL);
-        console.log('Full request URL:', `${process.env.BACKEND_INTERNAL_URL}/api/timeline?user_id=${twitterId}`);
+        console.log('Full request URL:', `${process.env.BACKEND_INTERNAL_URL}/api/timeline?user_id=${twitterId}${nextToken ? `&next_token=${nextToken}` : ''}`);
+
+        // Log the exact token being sent (without the Bearer prefix for security)
+        console.log('Token being sent:', twitterToken.substring(0, 10) + '...');
 
         const response = await serverApi.get('/api/timeline', {
             params: {
@@ -44,6 +47,7 @@ export async function GET(request: Request) {
             },
             headers: {
                 'Accept': 'application/json',
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${twitterToken}`,
                 'X-Twitter-User-Id': twitterId
             }
@@ -56,10 +60,25 @@ export async function GET(request: Request) {
     } catch (error) {
         console.error('Timeline fetch error:', error);
         if (error instanceof AxiosError && error.response) {
+            const authHeader = error.config?.headers?.['Authorization'];
+            const maskedAuth = typeof authHeader === 'string' ?
+                'Bearer ' + authHeader.split(' ')[1].substring(0, 10) + '...' :
+                undefined;
+
             console.error('Error response:', {
                 status: error.response.status,
                 data: error.response.data,
-                headers: error.response.headers
+                headers: error.response.headers,
+                request: {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    headers: {
+                        ...error.config?.headers,
+                        Authorization: maskedAuth,
+                        'X-Twitter-User-Id': error.config?.headers?.['X-Twitter-User-Id']
+                    },
+                    params: error.config?.params
+                }
             });
         }
         return NextResponse.json(
