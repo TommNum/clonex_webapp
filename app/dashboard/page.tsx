@@ -1,14 +1,10 @@
 "use client"
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 import { Timeline } from "../components/Timeline"
 
 export default function Dashboard() {
-    const router = useRouter();
-    const { data: session, status } = useSession();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -41,19 +37,6 @@ export default function Dashboard() {
         }
     };
 
-    if (status === 'loading') {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <LoadingSpinner />
-            </div>
-        );
-    }
-
-    if (!session) {
-        router.push('/');
-        return null;
-    }
-
     return (
         <div className="min-h-screen bg-black text-white p-8">
             <div className="max-w-4xl mx-auto">
@@ -68,13 +51,6 @@ export default function Dashboard() {
                 </div>
 
                 <div className="mt-6">
-                    <h2 className="text-lg font-semibold mb-2">Session Info</h2>
-                    <pre className="bg-gray-50 p-4 rounded-md overflow-x-auto">
-                        {JSON.stringify(session, null, 2)}
-                    </pre>
-                </div>
-
-                <div className="mt-6">
                     <button
                         onClick={handleTestAnalysis}
                         disabled={loading}
@@ -83,7 +59,7 @@ export default function Dashboard() {
                     >
                         {loading ? (
                             <span className="flex items-center">
-                                <LoadingSpinner className="w-4 h-4 mr-2" />
+                                <LoadingSpinner />
                                 Testing Analysis...
                             </span>
                         ) : (
