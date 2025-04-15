@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
-export async function POST(req: Request) {
+export async function POST() {
     const cookieStore = await cookies();
 
     const twitterId = cookieStore.get('twitter_id')?.value;
@@ -16,7 +16,8 @@ export async function POST(req: Request) {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${twitterToken}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-Twitter-User-Id': twitterId
             },
             body: JSON.stringify({
                 user_id: twitterId
