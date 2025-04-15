@@ -6,10 +6,12 @@ import { Timeline } from "../components/Timeline"
 import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 
 export default function Dashboard() {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [generatedTweets, setGeneratedTweets] = useState<string[]>([]);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const handleTestAnalysis = async () => {
         setLoading(true);
@@ -39,6 +41,40 @@ export default function Dashboard() {
         }
     };
 
+    const handleGenerateTweets = async () => {
+        if (!user?.id) {
+            setError('User ID not found');
+            return;
+        }
+
+        setIsGenerating(true);
+        setError(null);
+        setGeneratedTweets([]);
+
+        try {
+            const response = await fetch('/api/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: user.id })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to generate tweets');
+            }
+
+            const data = await response.json();
+            setGeneratedTweets(data.generated_tweets);
+        } catch (err) {
+            console.error('Error generating tweets:', err);
+            setError(err instanceof Error ? err.message : 'Failed to generate tweets');
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-black text-white p-8">
             <div className="max-w-4xl mx-auto">
@@ -51,7 +87,7 @@ export default function Dashboard() {
                             <p className="text-lg font-cormorant">You are now connected to X.</p>
                         </div>
 
-                        <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm">
+                        <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm space-y-4">
                             <button
                                 onClick={handleTestAnalysis}
                                 disabled={loading}
@@ -67,6 +103,21 @@ export default function Dashboard() {
                                 )}
                             </button>
 
+                            <button
+                                onClick={handleGenerateTweets}
+                                disabled={isGenerating}
+                                className={`px-4 py-2 rounded-md text-white ${isGenerating ? 'bg-gray-400' : 'bg-purple-500 hover:bg-purple-600'}`}
+                            >
+                                {isGenerating ? (
+                                    <span className="flex items-center">
+                                        <LoadingSpinner />
+                                        Generating Tweets...
+                                    </span>
+                                ) : (
+                                    'Generate Tweets'
+                                )}
+                            </button>
+
                             {error && (
                                 <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                                     {error}
@@ -76,6 +127,17 @@ export default function Dashboard() {
                             {success && (
                                 <div className="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
                                     Analysis created successfully! Check the console for details.
+                                </div>
+                            )}
+
+                            {generatedTweets.length > 0 && (
+                                <div className="mt-4 space-y-4">
+                                    <h3 className="text-xl font-semibold font-cormorant">Generated Tweets</h3>
+                                    {generatedTweets.map((tweet, index) => (
+                                        <div key={index} className="bg-white/5 p-4 rounded-lg">
+                                            <p className="font-cormorant">{tweet}</p>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>
