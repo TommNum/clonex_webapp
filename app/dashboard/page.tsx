@@ -6,7 +6,7 @@ import { Timeline } from "../components/Timeline"
 import { LoadingSpinner } from '@/app/components/LoadingSpinner';
 
 export default function Dashboard() {
-    const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
@@ -42,11 +42,6 @@ export default function Dashboard() {
     };
 
     const handleGenerateTweets = async () => {
-        if (!user?.id) {
-            setError('User ID not found');
-            return;
-        }
-
         setIsGenerating(true);
         setError(null);
         setGeneratedTweets([]);
@@ -56,8 +51,7 @@ export default function Dashboard() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ user_id: user.id })
+                }
             });
 
             if (!response.ok) {
