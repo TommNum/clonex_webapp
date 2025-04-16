@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { useAuth } from "@/contexts/AuthContext"
 import { Timeline } from "../components/Timeline"
 import { LoadingSpinner } from '@/app/components/LoadingSpinner';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Initialize Stripe with publishable key
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function Dashboard() {
     const { isAuthenticated } = useAuth();
@@ -12,6 +16,7 @@ export default function Dashboard() {
     const [success, setSuccess] = useState(false);
     const [generatedTweets, setGeneratedTweets] = useState<string[]>([]);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
     const handleTestAnalysis = async () => {
         setLoading(true);
@@ -69,6 +74,42 @@ export default function Dashboard() {
         }
     };
 
+    const handleCheckout = async () => {
+        if (!isAuthenticated) {
+            setError('Please log in to proceed with checkout');
+            return;
+        }
+
+        setIsCheckoutLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('/api/stripe/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create checkout session');
+            }
+
+            const { sessionId } = await response.json();
+            const stripe = await stripePromise;
+
+            const { error } = await stripe!.redirectToCheckout({ sessionId });
+            if (error) {
+                throw new Error(error.message);
+            }
+        } catch (err) {
+            console.error('Checkout error:', err);
+            setError(err instanceof Error ? err.message : 'Failed to initiate checkout');
+        } finally {
+            setIsCheckoutLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-black text-white p-8">
             <div className="max-w-4xl mx-auto">
@@ -109,6 +150,21 @@ export default function Dashboard() {
                                     </span>
                                 ) : (
                                     'Generate Tweets'
+                                )}
+                            </button>
+
+                            <button
+                                onClick={handleCheckout}
+                                disabled={isCheckoutLoading}
+                                className={`px-4 py-2 rounded-md text-white ${isCheckoutLoading ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'}`}
+                            >
+                                {isCheckoutLoading ? (
+                                    <span className="flex items-center">
+                                        <LoadingSpinner />
+                                        Processing...
+                                    </span>
+                                ) : (
+                                    'Upgrade to Premium'
                                 )}
                             </button>
 
