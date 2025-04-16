@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import { cookies } from 'next/headers';
 
 export async function POST(req: NextRequest) {
     try {
@@ -10,6 +11,15 @@ export async function POST(req: NextRequest) {
 
         if (!process.env.STRIPE_PRICE_ID) {
             throw new Error('STRIPE_PRICE_ID is not set');
+        }
+
+        // Get Twitter ID from cookies
+        const cookieStore = cookies();
+        const twitterId = cookieStore.get('twitter_id')?.value;
+        const twitterToken = cookieStore.get('twitter_access_token')?.value;
+
+        if (!twitterId || !twitterToken) {
+            return NextResponse.json({ error: 'No active session' }, { status: 401 });
         }
 
         // Parse and validate request body
@@ -25,10 +35,20 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // Validate required fields
+        if (!body.successUrl || !body.cancelUrl) {
+            return NextResponse.json(
+                { error: 'successUrl and cancelUrl are required' },
+                { status: 400 }
+            );
+        }
+
         // Prepare the request to the backend
         const backendRequest = {
-            ...body,
+            twitterUserId: twitterId,
             priceId: process.env.STRIPE_PRICE_ID,
+            successUrl: body.successUrl,
+            cancelUrl: body.cancelUrl,
         };
 
         console.log('Sending request to backend:', backendRequest);
@@ -38,7 +58,10 @@ export async function POST(req: NextRequest) {
             `${process.env.BACKEND_INTERNAL_URL}/api/stripe/create-checkout-session`,
             backendRequest,
             {
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${twitterToken}`
+                },
             }
         );
 

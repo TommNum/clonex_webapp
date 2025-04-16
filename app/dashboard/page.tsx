@@ -91,8 +91,6 @@ export default function Dashboard() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    // Add any required data here
-                    // For example, if you need the user's ID or other metadata
                     successUrl: `${window.location.origin}/success`,
                     cancelUrl: `${window.location.origin}/cancel`,
                 }),
