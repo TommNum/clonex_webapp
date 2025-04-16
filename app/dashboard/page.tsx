@@ -84,22 +84,37 @@ export default function Dashboard() {
         setError(null);
 
         try {
+            console.log('Initiating checkout...');
             const response = await fetch('/api/stripe/create-checkout-session', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({
+                    // Add any required data here
+                    // For example, if you need the user's ID or other metadata
+                    successUrl: `${window.location.origin}/success`,
+                    cancelUrl: `${window.location.origin}/cancel`,
+                }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to create checkout session');
+                const errorData = await response.json();
+                console.error('Checkout error response:', errorData);
+                throw new Error(errorData.error || 'Failed to create checkout session');
             }
 
-            const { sessionId } = await response.json();
-            const stripe = await stripePromise;
+            const data = await response.json();
+            console.log('Checkout session created:', data);
 
-            const { error } = await stripe!.redirectToCheckout({ sessionId });
+            const stripe = await stripePromise;
+            if (!stripe) {
+                throw new Error('Stripe failed to initialize');
+            }
+
+            const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
             if (error) {
+                console.error('Stripe redirect error:', error);
                 throw new Error(error.message);
             }
         } catch (err) {
