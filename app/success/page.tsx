@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 
-export default function Success() {
+function SuccessContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const sessionId = searchParams.get('session_id');
@@ -29,5 +29,21 @@ export default function Success() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function Success() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-black text-white p-8">
+                <div className="max-w-4xl mx-auto">
+                    <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm">
+                        <p className="text-lg font-cormorant">Loading...</p>
+                    </div>
+                </div>
+            </div>
+        }>
+            <SuccessContent />
+        </Suspense>
     );
 } 
