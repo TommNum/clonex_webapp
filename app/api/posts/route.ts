@@ -116,17 +116,22 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
         console.log('=== Create Tweet API Request ===');
-        console.log('Request body:', { ...body, user_id: twitterId });
+
+        // Explicitly construct the request body
+        const requestBody = {
+            text: body.text,
+            user_id: twitterId
+        };
+
+        console.log('Request body being sent:', requestBody);
         console.log('Backend URL:', process.env.BACKEND_INTERNAL_URL);
 
-        const response = await serverApi.post('/api/posts', {
-            ...body,
-            user_id: twitterId
-        }, {
+        const response = await serverApi.post('/api/posts', requestBody, {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${twitterToken}`
+                'Authorization': `Bearer ${twitterToken}`,
+                'X-Twitter-User-Id': twitterId  // Adding this header explicitly
             }
         });
 
