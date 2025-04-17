@@ -18,6 +18,10 @@ export default function Dashboard() {
     const [currentTweetIndex, setCurrentTweetIndex] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+    const [tweetText, setTweetText] = useState('');
+    const [isPosting, setIsPosting] = useState(false);
+    const [postError, setPostError] = useState<string | null>(null);
+    const [postSuccess, setPostSuccess] = useState(false);
 
     const handleTestAnalysis = async () => {
         setLoading(true);
@@ -124,6 +128,44 @@ export default function Dashboard() {
         }
     };
 
+    const handlePostTweet = async () => {
+        if (!tweetText.trim()) {
+            setPostError('Please enter some text for your tweet');
+            return;
+        }
+
+        setIsPosting(true);
+        setPostError(null);
+        setPostSuccess(false);
+
+        try {
+            const response = await fetch('/api/posts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: tweetText.trim(),
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to post tweet');
+            }
+
+            const data = await response.json();
+            console.log('Tweet posted successfully:', data);
+            setPostSuccess(true);
+            setTweetText(''); // Clear the input after successful post
+        } catch (err) {
+            console.error('Error posting tweet:', err);
+            setPostError(err instanceof Error ? err.message : 'Failed to post tweet');
+        } finally {
+            setIsPosting(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-black text-white p-8">
             <div className="max-w-4xl mx-auto">
@@ -137,6 +179,51 @@ export default function Dashboard() {
                         </div>
 
                         <div className="bg-white/10 p-6 rounded-lg backdrop-blur-sm space-y-4">
+                            {/* Tweet Input Form */}
+                            <div className="space-y-4">
+                                <h3 className="text-xl font-semibold font-cormorant">Create a Tweet</h3>
+                                <textarea
+                                    value={tweetText}
+                                    onChange={(e) => setTweetText(e.target.value)}
+                                    placeholder="What's happening?"
+                                    className="w-full p-4 rounded-lg bg-white/5 border border-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={4}
+                                    maxLength={280}
+                                />
+                                <div className="flex justify-between items-center">
+                                    <span className="text-sm text-white/50">
+                                        {tweetText.length}/280
+                                    </span>
+                                    <button
+                                        onClick={handlePostTweet}
+                                        disabled={isPosting || !tweetText.trim()}
+                                        className={`px-6 py-2 rounded-md text-white font-medium ${isPosting || !tweetText.trim()
+                                                ? 'bg-gray-400 cursor-not-allowed'
+                                                : 'bg-blue-500 hover:bg-blue-600'
+                                            }`}
+                                    >
+                                        {isPosting ? (
+                                            <span className="flex items-center">
+                                                <LoadingSpinner />
+                                                Posting...
+                                            </span>
+                                        ) : (
+                                            'Post Tweet'
+                                        )}
+                                    </button>
+                                </div>
+                                {postError && (
+                                    <div className="mt-2 text-red-500 text-sm">
+                                        {postError}
+                                    </div>
+                                )}
+                                {postSuccess && (
+                                    <div className="mt-2 text-green-500 text-sm">
+                                        Tweet posted successfully!
+                                    </div>
+                                )}
+                            </div>
+
                             <button
                                 onClick={handleTestAnalysis}
                                 disabled={loading}
