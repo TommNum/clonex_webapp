@@ -145,7 +145,7 @@ export default function Dashboard() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    text: tweetText.trim(),
+                    text: tweetText.trim()
                 }),
             });
 
@@ -198,8 +198,8 @@ export default function Dashboard() {
                                         onClick={handlePostTweet}
                                         disabled={isPosting || !tweetText.trim()}
                                         className={`px-6 py-2 rounded-md text-white font-medium ${isPosting || !tweetText.trim()
-                                                ? 'bg-gray-400 cursor-not-allowed'
-                                                : 'bg-blue-500 hover:bg-blue-600'
+                                            ? 'bg-gray-400 cursor-not-allowed'
+                                            : 'bg-blue-500 hover:bg-blue-600'
                                             }`}
                                     >
                                         {isPosting ? (

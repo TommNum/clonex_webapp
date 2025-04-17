@@ -119,7 +119,10 @@ export async function POST(request: Request) {
         console.log('Request body:', body);
         console.log('Backend URL:', process.env.BACKEND_INTERNAL_URL);
 
-        const response = await serverApi.post('/api/posts', body, {
+        const response = await serverApi.post('/api/posts', {
+            ...body,
+            user_id: twitterId
+        }, {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
