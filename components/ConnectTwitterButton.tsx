@@ -35,7 +35,7 @@ export default function ConnectTwitterButton() {
                 response_type: 'code',
                 client_id: process.env.NEXT_PUBLIC_TWITTER_CLIENT_ID!,
                 redirect_uri: process.env.NEXT_PUBLIC_TWITTER_REDIRECT_URI!,
-                scope: 'tweet.read users.read offline.access',
+                scope: 'tweet.read tweet.write users.read offline.access',
                 state,
                 code_challenge: codeChallenge,
                 code_challenge_method: 'S256',
