@@ -15,6 +15,7 @@ export default function Dashboard() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
     const [generatedTweets, setGeneratedTweets] = useState<string[]>([]);
+    const [currentTweetIndex, setCurrentTweetIndex] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
@@ -196,11 +197,26 @@ export default function Dashboard() {
                             {generatedTweets.length > 0 && (
                                 <div className="mt-4 space-y-4">
                                     <h3 className="text-xl font-semibold font-cormorant">Generated Tweets</h3>
-                                    {generatedTweets.map((tweet, index) => (
-                                        <div key={index} className="bg-white/5 p-4 rounded-lg">
-                                            <p className="font-cormorant">{tweet}</p>
-                                        </div>
-                                    ))}
+                                    <div className="bg-white/5 p-4 rounded-lg">
+                                        <p className="font-cormorant">{generatedTweets[currentTweetIndex]}</p>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <button
+                                            onClick={() => setCurrentTweetIndex((prev) => (prev > 0 ? prev - 1 : generatedTweets.length - 1))}
+                                            className="px-4 py-2 rounded-md text-white bg-blue-500 hover:bg-blue-600"
+                                        >
+                                            Previous
+                                        </button>
+                                        <span className="text-white">
+                                            {currentTweetIndex + 1} / {generatedTweets.length}
+                                        </span>
+                                        <button
+                                            onClick={() => setCurrentTweetIndex((prev) => (prev < generatedTweets.length - 1 ? prev + 1 : 0))}
+                                            className="px-4 py-2 rounded-md text-white bg-blue-500 hover:bg-blue-600"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>
