@@ -70,7 +70,9 @@ export default function Dashboard() {
             }
 
             const data = await response.json();
-            setGeneratedTweets(data.generated_tweets);
+            // Extract just the tweet text from the generated tweets
+            const tweetTexts = data.generated_tweets.map((tweet: any) => tweet.tweet_text || tweet);
+            setGeneratedTweets(tweetTexts);
         } catch (err) {
             console.error('Error generating tweets:', err);
             setError(err instanceof Error ? err.message : 'Failed to generate tweets');
